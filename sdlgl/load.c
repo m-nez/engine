@@ -2,6 +2,8 @@
 #include "draw.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <SDL2/SDL_image.h>
 
 char* readfile(const char* fname) {
 	FILE* in = fopen(fname, "rb");
@@ -70,10 +72,13 @@ GLuint load_shader(const char* vert, const char* frag) {
 	return shaderProgram;
 }
 
-unsigned int load_vbb(vbuff_t vbuff, const char* fname, GLuint shader) {
+unsigned int load_vbb(vbuff_t vbuff,
+		const char* fname,
+		GLuint shader,
+		unsigned int* num_bones) {
 	FILE* in = fopen(fname, "rb");
 	if (in == NULL) {
-		fprintf(stderr, "Error: Could not open file: %s", fname);
+		fprintf(stderr, "Error: Could not open file: %s\n", fname);
 	}
 	
 	unsigned int n;
@@ -86,6 +91,7 @@ unsigned int load_vbb(vbuff_t vbuff, const char* fname, GLuint shader) {
 
     glBindVertexArray(vbuff[VBF_VAO]);
 	fread(&n, sizeof(unsigned int), 1, in);
+	fread(num_bones, sizeof(unsigned int), 1, in);
 	for (i = 0; i < n; ++i) {
 		fread(&count, sizeof(unsigned int), 1, in);
 		fread(&index, sizeof(unsigned int), 1, in);
@@ -103,4 +109,34 @@ unsigned int load_vbb(vbuff_t vbuff, const char* fname, GLuint shader) {
 	free(data);
 
 	return num_elem;
+}
+
+static void invertY(char* data, int w, int h) {
+	int i;
+	char* tmp = malloc(w);
+	for (i = 0; i < h/2; ++i) {
+		memcpy(tmp, data + i*w, w);
+		memcpy(data + i*w, data + (h - i - 1) * w, w);
+	}
+	free(tmp);
+}
+
+GLuint load_texture(const char* fname) {
+	SDL_Surface* surf = IMG_Load(fname);
+	/* Invert RGBA image */
+	invertY(surf->pixels, surf->w*4, surf->h);
+	GLuint texture;
+
+	glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surf->w, surf->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, surf->pixels);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	SDL_FreeSurface(surf);
+
+	return texture;
 }

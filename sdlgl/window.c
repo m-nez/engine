@@ -12,9 +12,8 @@ void SDLGL_Init(SDLGL_Settings* s, SDL_Window** w, SDL_GLContext* c) {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, s->gl_context_minor_version);
     
 	*w = SDL_CreateWindow( s->title, s->x, s->y, s->width, s->height, s->flags); 
-	printf("%p\n", *w);
 
-	c = malloc(sizeof(SDL_GLContext));
+	c = (SDL_GLContext*)malloc(sizeof(SDL_GLContext));
 	*c = SDL_GL_CreateContext(*w);
     glewExperimental = GL_TRUE;
     glewInit();
@@ -22,7 +21,7 @@ void SDLGL_Init(SDLGL_Settings* s, SDL_Window** w, SDL_GLContext* c) {
 }
 
 SDLGL_Settings* SDLGL_SettingsDefault() {
-	SDLGL_Settings* s = malloc(sizeof(SDLGL_Settings));
+	SDLGL_Settings* s = (SDLGL_Settings*)malloc(sizeof(SDLGL_Settings));
 	strcpy(s->title, "SDLGL");
 	s->x = 0;
 	s->y = 0;
