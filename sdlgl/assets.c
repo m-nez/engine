@@ -51,6 +51,9 @@ void assets_load_ldl(assets_t* assets, const char* filename) {
 			strcat(shaders[j], buff[j]);
 		}
 		strreplace(buff[0], '.', '\0');
+		if (hash_map_get(assets->shaders_map, buff[0]) != NULL) {
+			continue;
+		}
 		assets->shaders_data[assets->shaders_map->len].shader = load_shader(
 				shaders[0], shaders[1]);
 		shader_init_uniform_index(&assets->shaders_data[assets->shaders_map->len]);
@@ -67,6 +70,9 @@ void assets_load_ldl(assets_t* assets, const char* filename) {
 		}
 		strcpy(buff[3], dirs[1]);
 		strcat(buff[3], buff[1]);
+		if (hash_map_get(assets->models_map, buff[0]) != NULL) {
+			continue;
+		}
 		model_from_vbb(
 				&assets->models_data[assets->models_map->len],
 				buff[3],
@@ -80,12 +86,16 @@ void assets_load_ldl(assets_t* assets, const char* filename) {
 	/* Textures */
 	fscanf(stream, "%d", &num);
 	for(i = 0; i < num; ++i) {
-		fscanf(stream, "%s", buff[0]);
+		fscanf(stream, " %[^\n]", buff[0]);
 		strcpy(buff[1], dirs[2]);
 		strcat(buff[1], buff[0]);
 
-		assets->textures_data[assets->textures_map->len] = load_texture(buff[1]);
 		strreplace(buff[0], '.', '\0');
+		if (hash_map_get(assets->textures_map, buff[0]) != NULL) {
+			continue;
+		}
+
+		assets->textures_data[assets->textures_map->len] = load_texture(buff[1]);
 		hash_map_set(
 				assets->textures_map, buff[0],
 				assets->textures_data + assets->textures_map->len);
@@ -98,15 +108,17 @@ void assets_load_ldl(assets_t* assets, const char* filename) {
 		strcpy(buff[1], dirs[3]);
 		strcat(buff[1], buff[0]);
 
+		strreplace(buff[0], '.', '\0');
+		if (hash_map_get(assets->animations_map, buff[0]) != NULL) {
+			continue;
+		}
 		anim_from_file(
 				assets->animations_data + assets->animations_map->len,
 				buff[1]);
-		strreplace(buff[0], '.', '\0');
 		hash_map_set(
 				assets->animations_map, buff[0],
 				assets->animations_data + assets->animations_map->len);
 	}
-
 
 	fclose(stream);
 }

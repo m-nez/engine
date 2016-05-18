@@ -87,17 +87,18 @@ static inline void render(render_state_t rs, dobject_t dobject, scene_properties
 }
 
 void draw_dobjects(dobject_t* dobjects, render_state_t* r_states, int num_r_states, scene_properties_t* scene_prop) {
-	int i, j;
+	int i, j, rs_start_index;
 
 	calc_scene_prop(scene_prop);
-	//bind_frame_buffer(scene_prop);
 
+	rs_start_index = 0;
 	for (i = 0; i < num_r_states; ++i) {
 		change_render_state(r_states[i], scene_prop);
 		for (j = 0; j < r_states[i].len; ++j) {
-			render(r_states[i], dobjects[i+j], scene_prop);
+			render(r_states[i], dobjects[rs_start_index+j], scene_prop);
 			glDrawElements(GL_TRIANGLES, r_states[i].num_elem, GL_UNSIGNED_INT, NULL);
 		}
+		rs_start_index += r_states[i].len;
 	}
 
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);

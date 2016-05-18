@@ -8,7 +8,7 @@
 char* readfile(const char* fname) {
 	FILE* in = fopen(fname, "rb");
 	if (in == NULL) {
-		fprintf(stderr, "Error: Could not open file: [%s]\n", fname);
+		fprintf(stderr, "Error: Could not open file: %s\n", fname);
 		return NULL;
 	}
 	fseek(in, 0, SEEK_END);
@@ -117,6 +117,7 @@ static void invertY(char* data, int w, int h) {
 	for (i = 0; i < h/2; ++i) {
 		memcpy(tmp, data + i*w, w);
 		memcpy(data + i*w, data + (h - i - 1) * w, w);
+		memcpy(data + (h - i - 1) * w, tmp, w);
 	}
 	free(tmp);
 }
@@ -124,12 +125,18 @@ static void invertY(char* data, int w, int h) {
 GLuint load_texture(const char* fname) {
 	SDL_Surface* surf = IMG_Load(fname);
 	/* Invert RGBA image */
-	invertY(surf->pixels, surf->w*4, surf->h);
+	invertY(surf->pixels, surf->w*surf->format->BytesPerPixel, surf->h);
+	GLenum format;
+	if (SDL_ISPIXELFORMAT_ALPHA(surf->format->format)) {
+		format = GL_RGBA;
+	} else {
+		format = GL_RGB;
+	}
+	
 	GLuint texture;
-
 	glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surf->w, surf->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, surf->pixels);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, surf->w, surf->h, 0, format, GL_UNSIGNED_BYTE, surf->pixels);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
