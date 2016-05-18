@@ -1,5 +1,4 @@
 #include "hash_map.h"
-#include <stdlib.h>
 #include <string.h>
 
 hash_map_t* hash_map_new(int size) {
@@ -40,7 +39,7 @@ void hash_map_delete(hash_map_t* hash_map) {
 	free(hash_map);
 }
 
-static int hash_map_function(hash_map_t* hash_map, char* key) {
+static int hash_map_function(hash_map_t* hash_map, const char* key) {
 	int i;
 	int hash = 21589731;
 	for(i = 0; key[i] != 0; ++i) {
@@ -67,7 +66,7 @@ void* hash_map_get(hash_map_t* hash_map, char* key) {
 	return NULL;
 }
 
-void hash_map_set(hash_map_t* hash_map, char* key, void* val) {
+void hash_map_set(hash_map_t* hash_map, const char* key, void* val) {
 	int index = hash_map_function(hash_map, key);
 	bucket_t* bucket = hash_map->buckets + index;
 	bucket_t** b_next = &bucket;
@@ -88,4 +87,10 @@ void hash_map_set(hash_map_t* hash_map, char* key, void* val) {
 	strcpy((*b_next)->key, key);
 	(*b_next)->next = NULL;
 	hash_map->len++;
+}
+
+void hash_map_set_data(hash_map_t* hash_map, void* data_vec, size_t elem_size, char* key, void* val) {
+	char* d = (char*) data_vec;
+	memcpy(d + elem_size * hash_map->len, val, elem_size);
+	hash_map_set(hash_map, key, d + elem_size * hash_map->len);
 }

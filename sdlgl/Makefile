@@ -11,7 +11,9 @@ SDLGL_DEPS=\
 		   anim.o \
 		   hash_map.o \
 		   assets.o \
-		   model.o
+		   model.o \
+		   shader.o \
+		   render_states.o
 sdlgl.a: $(SDLGL_DEPS)
 	ar rvs $@ $^
 
@@ -43,6 +45,12 @@ assets.o: assets.c assets.h
 	$(CC) $< -c -o $@ $(CFLAGS)
 
 model.o: model.c model.h
+	$(CC) $< -c -o $@ $(CFLAGS)
+
+shader.o: shader.c shader.h
+	$(CC) $< -c -o $@ $(CFLAGS)
+
+render_states.o: render_states.c render_states.h
 	$(CC) $< -c -o $@ $(CFLAGS)
 
 .PHONY: clean

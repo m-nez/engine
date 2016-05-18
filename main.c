@@ -51,7 +51,6 @@ int main(int argc, char** argv) {
 	};
 
 	for (int i = 0; i < 60 * 5; ++i) {
-		//rs->rs[0].textures[0] = t[(int)(i / 60.0) % 2];
 		anim_eval(anim, scene.time, rs->dobjects[0].bones);
 		glEnable(GL_DEPTH_TEST);
 		scene_bind_frame_buffer(&scene);

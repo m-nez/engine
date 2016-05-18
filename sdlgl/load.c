@@ -8,7 +8,7 @@
 char* readfile(const char* fname) {
 	FILE* in = fopen(fname, "rb");
 	if (in == NULL) {
-		fprintf(stderr, "Error: Could not open file: %s", fname);
+		fprintf(stderr, "Error: Could not open file: [%s]\n", fname);
 		return NULL;
 	}
 	fseek(in, 0, SEEK_END);

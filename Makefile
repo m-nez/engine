@@ -4,15 +4,11 @@ LIBS=`pkg-config --cflags --libs sdl2 glew SDL2_image`
 LIBS+=-lm
 STATIC=sdlgl/sdlgl.a
 
-default: all
+default: main
 
-all:
+main: main.o
 	cd sdlgl && $(MAKE)
-	$(MAKE) main.o
-	$(CC) main.o $(STATIC) -o $@ $(LIBS) $(CFLAGS)
-
-main.o: main.c
-	$(CC) -c $^ -o $@ $(LIBS) $(CFLAGS)
+	$(CC) $^ $(STATIC) -o $@ $(LIBS) $(CFLAGS)
 
 .PHONY: clean
 clean:

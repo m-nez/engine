@@ -4,14 +4,17 @@
 
 assets_t* assets_new() {
 	assets_t* assets = malloc(sizeof(assets_t));
-	assets->shaders_map = hash_map_new(64);
-	assets->models_map = hash_map_new(1024);
-	assets->textures_map = hash_map_new(1024);
-	assets->animations_map = hash_map_new(1024);
 
+	assets->shaders_map = hash_map_new(64);
 	assets->shaders_data = malloc(sizeof(*assets->shaders_data) * 64);
+
+	assets->models_map = hash_map_new(1024);
 	assets->models_data = malloc(sizeof(*assets->models_data) * 1024);
+
+	assets->textures_map = hash_map_new(1024);
 	assets->textures_data = malloc(sizeof(*assets->textures_data) * 1024);
+
+	assets->animations_map = hash_map_new(1024);
 	assets->animations_data = malloc(sizeof(*assets->animations_data) * 1024);
 
 	return assets;
@@ -48,8 +51,9 @@ void assets_load_ldl(assets_t* assets, const char* filename) {
 			strcat(shaders[j], buff[j]);
 		}
 		strreplace(buff[0], '.', '\0');
-		assets->shaders_data[assets->shaders_map->len] = load_shader(
+		assets->shaders_data[assets->shaders_map->len].shader = load_shader(
 				shaders[0], shaders[1]);
+		shader_init_uniform_index(&assets->shaders_data[assets->shaders_map->len]);
 		hash_map_set(
 				assets->shaders_map, buff[0],
 				assets->shaders_data + assets->shaders_map->len);
