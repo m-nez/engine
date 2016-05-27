@@ -89,9 +89,13 @@ typedef struct {
 	int num_tex;
 	int len;
 	GLint* uniform_index;
+
+	/* Dynamic vector of dobjects */
+	dobject_t* dobjects;
+	int dobjects_size;
 } render_state_t;
 
 /* No need for a pointer becouse it's an array */
 void gen_vbuff(vbuff_t);
 void fill_buff(vbuff_t vbuff, unsigned int index, void* data, size_t size, GLuint shader);
-void draw_dobjects(dobject_t*, render_state_t*, int, scene_properties_t* scene_prop);
+void draw_render_states(render_state_t*, int num_r_states, scene_properties_t* scene_prop);

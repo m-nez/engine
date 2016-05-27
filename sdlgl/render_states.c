@@ -24,20 +24,18 @@ static void render_state_from_model_shader_textures(
 	rs->num_tex = num_tex;
 	rs->len = len;
 	rs->uniform_index = shader->uniform_index;
+
+	rs->dobjects = malloc(sizeof(dobject_t) * len);
+	rs->dobjects_size = len;
+	for(i = 0; i < len; ++i) {
+		dobject_init(rs->dobjects + i, rs);
+	}
 }
 
 render_states_t* render_states_new() {
-	int i;
 	render_states_t* rs = malloc(sizeof(render_states_t));
 	rs->map = hash_map_new(RS_MAX_RENDER_STATES);
 	rs->data = malloc(sizeof(render_states_t) * RS_MAX_RENDER_STATES);
-	rs->dobjects = malloc(sizeof(dobject_t) * RS_MAX_DOBJECTS);
-	for (i = 0; i < RS_MAX_DOBJECTS; ++i) {
-		mat4identity(rs->dobjects[i].model_mat);
-		rs->dobjects[i].bones = 0;
-	}
-	rs->index = malloc(sizeof(int) * RS_MAX_RENDER_STATES);
-	rs->index[0] = 0;
 	return rs;
 }
 void render_states_add(
@@ -58,26 +56,10 @@ void render_states_add(
 				len
 				);
 
-		r->index[r->map->len + 1] = r->index[r->map->len] + len;
 		hash_map_set(
 				r->map, key,
 				r->data + r->map->len);
 }
-
-
-void render_states_realloc_bones(
-		render_states_t* rs) {
-	int i, j, k;
-	for (i = 0; i < rs->map->len; ++i) {
-		for (j = rs->index[i]; j < rs->index[i+1]; ++j) {
-			rs->dobjects[j].bones = realloc(
-					rs->dobjects[j].bones,
-					sizeof(*(rs->dobjects[j].bones)) * rs->data[i].num_bones);
-			for(k = 0; k < rs->data[i].num_bones; ++k) {
-				mat4identity(rs->dobjects[j].bones[k]);
-			}
-		}
-	}}
 
 void render_states_load_RSB(render_states_t* rs, assets_t* assets, const char* filename) {
 	int i, j;

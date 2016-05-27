@@ -1,5 +1,6 @@
 #include "hash_map.h"
 #include <string.h>
+#include <stdio.h>
 
 hash_map_t* hash_map_new(int size) {
 	int i;
@@ -87,6 +88,52 @@ void hash_map_set(hash_map_t* hash_map, const char* key, void* val) {
 	strcpy((*b_next)->key, key);
 	(*b_next)->next = NULL;
 	hash_map->len++;
+}
+
+void hash_map_remove(hash_map_t* hash_map, char* key) {
+	int index = hash_map_function(hash_map, key);
+	bucket_t* bucket = hash_map->buckets + index;
+	bucket_t* prev = NULL;
+
+	if (bucket->key != NULL) {
+		if (bucket->next != NULL) {
+			bucket->val = NULL;
+			free(bucket->key);
+			bucket->key = NULL;
+			hash_map->len--;
+		} else {
+			do {
+				if (strcmp(key, bucket->key) == 0) {
+					if (prev == NULL) {
+						bucket->val = NULL;
+						free(bucket->key);
+						bucket->key = NULL;
+						hash_map->len--;
+					} else {
+						prev->next = bucket->next;
+						free(bucket->key);
+						free(bucket);
+						hash_map->len--;
+					}
+				}
+				prev = bucket;
+				bucket = bucket->next;
+			} while (bucket != NULL);
+		}
+	}
+}
+void hash_map_print_keys(hash_map_t* hash_map) {
+	int i;
+	bucket_t* bucket;
+	for(i = 0; i < hash_map->size; ++i) {
+		if (hash_map->buckets[i].key != NULL)	{
+			bucket = hash_map->buckets + i;
+			do {
+				printf("%s\n", bucket->key);
+				bucket = bucket->next;
+			} while(bucket != NULL);
+		}
+	}
 }
 
 void hash_map_set_data(hash_map_t* hash_map, void* data_vec, size_t elem_size, char* key, void* val) {

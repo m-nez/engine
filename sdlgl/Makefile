@@ -13,7 +13,12 @@ SDLGL_DEPS=\
 		   assets.o \
 		   model.o \
 		   shader.o \
-		   render_states.o
+		   render_state.o \
+		   render_states.o \
+		   gobject.o
+
+.PHONY: sdlgl.a
+
 sdlgl.a: $(SDLGL_DEPS)
 	ar rvs $@ $^
 
@@ -50,7 +55,13 @@ model.o: model.c model.h
 shader.o: shader.c shader.h
 	$(CC) $< -c -o $@ $(CFLAGS)
 
+render_state.o: render_state.c render_state.h
+	$(CC) $< -c -o $@ $(CFLAGS)
+
 render_states.o: render_states.c render_states.h
+	$(CC) $< -c -o $@ $(CFLAGS)
+
+gobject.o: gobject.c gobject.h
 	$(CC) $< -c -o $@ $(CFLAGS)
 
 .PHONY: clean
