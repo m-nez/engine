@@ -15,7 +15,8 @@ SDLGL_DEPS=\
 		   shader.o \
 		   render_state.o \
 		   render_states.o \
-		   gobject.o
+		   gobject.o \
+		   gobjects.o
 
 .PHONY: sdlgl.a
 

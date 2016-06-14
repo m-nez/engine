@@ -14,7 +14,7 @@ main: main.o
 .PHONY: test
 
 test: main
-	cd test && $(MAKE) && ./load_test
+	./main
 
 .PHONY: clean
 clean:

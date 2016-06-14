@@ -13,3 +13,6 @@ void mat4mul(mat4 a, mat4 b, mat4 dest);
 void mat4cpy(mat4 dest, mat4 src);
 void mat4addi(mat4 a, mat4 b);
 void mat4slerp(mat4 a, mat4 b, float x, mat4 dest);
+
+float vec3dot(vec3 a, vec3 b);
+void vec3cross(vec3 a, vec3 b, vec3 c);

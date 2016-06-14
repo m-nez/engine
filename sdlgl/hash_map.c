@@ -50,7 +50,7 @@ static int hash_map_function(hash_map_t* hash_map, const char* key) {
 	return hash;
 }
 
-void* hash_map_get(hash_map_t* hash_map, char* key) {
+void* hash_map_get(hash_map_t* hash_map, const char* key) {
 	int index = hash_map_function(hash_map, key);
 	bucket_t* bucket = hash_map->buckets + index;
 
@@ -90,7 +90,7 @@ void hash_map_set(hash_map_t* hash_map, const char* key, void* val) {
 	hash_map->len++;
 }
 
-void hash_map_remove(hash_map_t* hash_map, char* key) {
+void hash_map_remove(hash_map_t* hash_map, const char* key) {
 	int index = hash_map_function(hash_map, key);
 	bucket_t* bucket = hash_map->buckets + index;
 	bucket_t* prev = NULL;

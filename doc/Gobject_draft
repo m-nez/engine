@@ -1,0 +1,26 @@
+load Assets
+
+GenSceneFromFile
+for each gobject
+
+GObject {
+	asset(RenderState)
+
+	loc		//
+	rot		// Matrix 4x4
+	scale	//
+
+	Physics Model {
+		collison bounds
+		weight
+		moment of inertia?
+	}
+
+	Logic {
+		collision_callback
+		keypress_callback
+		mouse_callback
+		time_callback
+
+	}
+}

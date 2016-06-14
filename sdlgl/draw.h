@@ -74,10 +74,15 @@ typedef struct {
 
 typedef GLuint vbuff_t[VBF_LEN];
 
-/* Drawable object */
+/* Drawable object 
+ * gobject_ptr:		gobject is referencing this dobject.
+ * 					Used when removing gobjects.
+ * 					NULL if no gobject is referencing.
+ * */
 typedef struct {
 	mat4 model_mat;
 	mat4* bones;
+	void* gobject_ptr;
 } dobject_t;
 
 typedef struct {

@@ -25,9 +25,9 @@ static void render_state_from_model_shader_textures(
 	rs->len = len;
 	rs->uniform_index = shader->uniform_index;
 
-	rs->dobjects = malloc(sizeof(dobject_t) * len);
-	rs->dobjects_size = len;
-	for(i = 0; i < len; ++i) {
+	rs->dobjects_size = len + 1; /* Size at least 1 */
+	rs->dobjects = malloc(sizeof(dobject_t) * rs->dobjects_size);
+	for(i = 0; i < rs->dobjects_size; ++i) {
 		dobject_init(rs->dobjects + i, rs);
 	}
 }
@@ -35,7 +35,7 @@ static void render_state_from_model_shader_textures(
 render_states_t* render_states_new() {
 	render_states_t* rs = malloc(sizeof(render_states_t));
 	rs->map = hash_map_new(RS_MAX_RENDER_STATES);
-	rs->data = malloc(sizeof(render_states_t) * RS_MAX_RENDER_STATES);
+	rs->data = malloc(sizeof(render_state_t) * RS_MAX_RENDER_STATES);
 	return rs;
 }
 void render_states_add(

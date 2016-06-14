@@ -1,0 +1,51 @@
+VBB Format.
+VBB means Vertex Buffers and Bones.
+It's a binary format made for transfering data to vertex buffers,
+used by OpenGL applications.
+
+data types:
+uint = unsigned int (4 bytes)
+float = float (4 bytes)
+
+index types: (As defined in draw.h)
+VBF_EBO			1
+VBF_VERTEX		2
+VBF_NORMAL		3
+VBF_UV			4
+VBF_COLOR		5
+VBF_TANGENT		6
+VBF_BITANGENT	7
+VBF_BONE_WEIGHT	8
+VBF_BONE_INDEX	9
+
+format:
+type		size	name	description
+
+-------------HEADER-------------
+uint		4		n		number of buffers
+uint		4		n		number of bones
+
+-------------BUFFER-------------
+uint		4		count	number of 4-byte elements
+uint		4		index	type of the buffer
+uint/float	4*n		data	buffer data
+
+example:
+each line is 4 bytes
+2	(2 buffers)
+9	(9 elemets)
+2	(index of the Vertex buffer)
+0.0	(first element of data)
+0.0
+0.0
+1.0
+0.0
+0.0
+0.0
+1.0
+0.0	(last element of data)
+3	(elements)
+1	(index of the Element buffer)
+0	(first element of data)
+1
+2	(last element of data)

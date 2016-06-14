@@ -1,0 +1,18 @@
+RSB Format.
+Render State Builder.
+File specifying render states for the engine.
+A render state describes an object in terms of its:
+-model
+-shader
+-textures.
+
+format:
+
+integer number of render states
+
+key
+model
+shader
+number of textures
+textures
+number of draw objects in render state

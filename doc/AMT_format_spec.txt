@@ -1,0 +1,32 @@
+AMT Format.
+Animation Matrix.
+It's a binary format made for storing skeletal animation data
+in a per keyframe basis.
+Matrices are computed by multiplying the inverse of bone bind matrix
+and the world matrix.
+Bi * w
+
+format:
+type		size			name			description
+
+-------------HEADER-------------
+uint		4				n				number of bones
+uint		4				num_keyframes	number of keyframes
+
+-------------TIMES--------------
+float		4*num_keyframes	times			times of keyframes
+
+-------------MATRICES-----------
+float		4*16*			matrices		matrices of each bone in
+			num_bones*						keyframes,
+			num_keyframes					stored in column major order
+
+example:
+2	(2 bones)
+9	(2 keyframes)
+0.0 (time of the first keyframe)
+1.2 (time of the second keyframe)
+(Matrix for the first bone in the first keyframe)
+(Matrix for the first bone in the second keyframe)
+(Matrix for the second bone in the first keyframe)
+(Matrix for the second bone in the second keyframe)

@@ -195,6 +195,7 @@ void mat4addi(mat4 a, mat4 b) {
 	}
 }
 
+
 static inline void vec3spherical(vec3 v, vec3 s) {
 	/* s[0] = r, s[1] = fi, s[2] = theta */
 	int i;
@@ -218,7 +219,7 @@ void mat4slerp(mat4 a, mat4 b, float x, mat4 dest) {
 	/* TODO */
 	int i, j;
 	vec3 s[2];
-	for (i = 0; i < 3; ++i) {
+	for (i = 0; i < 2; ++i) {
 		vec3spherical(a + i * 4, s[0]);
 		vec3spherical(b + i * 4, s[1]);
 		for(j = 0; j < 3; ++j) {
@@ -226,7 +227,23 @@ void mat4slerp(mat4 a, mat4 b, float x, mat4 dest) {
 		}
 		vec3fromspherical(dest + i * 4, s[0]);
 	}
+	vec3cross(dest, dest + 4, dest + 8);
 	for (i = 12; i < 15; ++i) {
 		dest[i] = a[i] * (1 - x) + b[i] * x;
 	}
+}
+
+float vec3dot(vec3 a, vec3 b) {
+	float s = 0;
+	int i;
+	for(i = 0; i < 3; ++i) {
+		s += a[i] * b[i];
+	}
+	return s;
+}
+
+void vec3cross(vec3 a, vec3 b, vec3 c) {
+	c[0] = a[1]*b[2] - a[2] * b[1];
+	c[1] = a[2]*b[0] - a[0] * b[2];
+	c[2] = a[0]*b[1] - a[1] * b[0];
 }
