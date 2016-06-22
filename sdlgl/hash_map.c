@@ -67,7 +67,7 @@ void* hash_map_get(hash_map_t* hash_map, const char* key) {
 	return NULL;
 }
 
-void hash_map_set(hash_map_t* hash_map, const char* key, void* val) {
+bucket_t* hash_map_set(hash_map_t* hash_map, const char* key, void* val) {
 	int index = hash_map_function(hash_map, key);
 	bucket_t* bucket = hash_map->buckets + index;
 	bucket_t** b_next = &bucket;
@@ -76,7 +76,7 @@ void hash_map_set(hash_map_t* hash_map, const char* key, void* val) {
 		do {
 			if (strcmp(key, bucket->key) == 0) {
 				bucket->val = val;
-				return;
+				return bucket;
 			}
 			b_next = &bucket->next;
 			bucket = bucket->next;
@@ -88,6 +88,7 @@ void hash_map_set(hash_map_t* hash_map, const char* key, void* val) {
 	strcpy((*b_next)->key, key);
 	(*b_next)->next = NULL;
 	hash_map->len++;
+	return (*b_next);
 }
 
 void hash_map_remove(hash_map_t* hash_map, const char* key) {

@@ -126,7 +126,7 @@ class VBBExporter(bpy.types.Operator):
         filePath = bpy.path.ensure_ext(self.filepath, ".vbb")
         config = {}
 
-        exportVBB(context, filePath, config)
+        self.exportVBB(context, filePath, config)
         return {'FINISHED'}
 
     def invoke(self, context, event):

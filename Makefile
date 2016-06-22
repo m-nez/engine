@@ -13,6 +13,9 @@ main: main.o
 
 .PHONY: test
 
+main.o: main.c
+	$(CC) $^ -c -o $@ $(CFLAGS) $(LIBS)
+
 test: main
 	./main
 

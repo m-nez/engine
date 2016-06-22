@@ -42,7 +42,10 @@ void gobjects_remove(gobjects_t* gobjects, const char* name) {
 	if (gp - gobjects->data != gobjects->map->len - 1) {
 		/* Not the last element, so we have to swap */
 		memcpy(gp, gobjects->data + gobjects->map->len - 1, sizeof(gobject_t));
+		/* Update dobject's pointer */
 		gp->dobject->gobject_ptr = gp;
+		/* Update pointer in the hash map */
+		hash_map_set(gobjects->map, gp->name, gp);
 	}
 	hash_map_remove(gobjects->map, name);
 }
@@ -55,14 +58,14 @@ gobject_t* gobjects_get(gobjects_t* gobjects, const char* name) {
 	return gp;
 }
 
-void gobjects_apply(gobjects_t* gobjects) {
+void gobjects_apply(gobjects_t* gobjects, float dt) {
 	int i;
 	for( i = 0; i < gobjects->map->len; ++i) {
-		gobject_apply(gobjects->data + i);
+		gobject_apply(gobjects->data + i, dt);
 	}
 }
 
-gobject_t* gobjects_create_drawable(gobjects_t* gobjects, const char* name, const char* rs_name) {
+gobject_t* gobjects_add_drawable(gobjects_t* gobjects, const char* name, const char* rs_name) {
 	gobject_t* g = gobjects_add(gobjects, name);
 	if (g == NULL) {
 		return NULL;
@@ -72,6 +75,18 @@ gobject_t* gobjects_create_drawable(gobjects_t* gobjects, const char* name, cons
 		fprintf(stderr, "Warning: No render state with name \"%s\" found.\n", rs_name);
 		return g;
 	}
+	dobject_t* dobjects_pre = rs->dobjects;
 	g->dobject = render_state_add(rs);
+	g->dobject->gobject_ptr = g;
+	if (rs->dobjects != dobjects_pre) {
+		/* Adding caused a realloc, gobjects' dobject pointers have to be updated */
+		int i;
+		for (i = 0; i < rs->len; ++i) {
+			if (rs->dobjects[i].gobject_ptr != NULL) {
+				gobject_t* gob = rs->dobjects[i].gobject_ptr;
+				gob->dobject = rs->dobjects + i;
+			}
+		}
+	}
 	return g;
 }

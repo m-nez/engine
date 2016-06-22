@@ -1,133 +1,12 @@
 #include "data_types.h"
 #include <stdio.h>
 #include <math.h>
+#include "vectormath/vectormath_aos.h"
 
-/* COPIED AND MODIFED FROM MESA GLU */
 void mat4invert(mat4 m, mat4 invOut) {
-    float inv[16], det;
-    int i;
-
-    inv[0] = m[5]  * m[10] * m[15] - 
-             m[5]  * m[11] * m[14] - 
-             m[9]  * m[6]  * m[15] + 
-             m[9]  * m[7]  * m[14] +
-             m[13] * m[6]  * m[11] - 
-             m[13] * m[7]  * m[10];
-
-    inv[4] = -m[4]  * m[10] * m[15] + 
-              m[4]  * m[11] * m[14] + 
-              m[8]  * m[6]  * m[15] - 
-              m[8]  * m[7]  * m[14] - 
-              m[12] * m[6]  * m[11] + 
-              m[12] * m[7]  * m[10];
-
-    inv[8] = m[4]  * m[9] * m[15] - 
-             m[4]  * m[11] * m[13] - 
-             m[8]  * m[5] * m[15] + 
-             m[8]  * m[7] * m[13] + 
-             m[12] * m[5] * m[11] - 
-             m[12] * m[7] * m[9];
-
-    inv[12] = -m[4]  * m[9] * m[14] + 
-               m[4]  * m[10] * m[13] +
-               m[8]  * m[5] * m[14] - 
-               m[8]  * m[6] * m[13] - 
-               m[12] * m[5] * m[10] + 
-               m[12] * m[6] * m[9];
-
-    inv[1] = -m[1]  * m[10] * m[15] + 
-              m[1]  * m[11] * m[14] + 
-              m[9]  * m[2] * m[15] - 
-              m[9]  * m[3] * m[14] - 
-              m[13] * m[2] * m[11] + 
-              m[13] * m[3] * m[10];
-
-    inv[5] = m[0]  * m[10] * m[15] - 
-             m[0]  * m[11] * m[14] - 
-             m[8]  * m[2] * m[15] + 
-             m[8]  * m[3] * m[14] + 
-             m[12] * m[2] * m[11] - 
-             m[12] * m[3] * m[10];
-
-    inv[9] = -m[0]  * m[9] * m[15] + 
-              m[0]  * m[11] * m[13] + 
-              m[8]  * m[1] * m[15] - 
-              m[8]  * m[3] * m[13] - 
-              m[12] * m[1] * m[11] + 
-              m[12] * m[3] * m[9];
-
-    inv[13] = m[0]  * m[9] * m[14] - 
-              m[0]  * m[10] * m[13] - 
-              m[8]  * m[1] * m[14] + 
-              m[8]  * m[2] * m[13] + 
-              m[12] * m[1] * m[10] - 
-              m[12] * m[2] * m[9];
-
-    inv[2] = m[1]  * m[6] * m[15] - 
-             m[1]  * m[7] * m[14] - 
-             m[5]  * m[2] * m[15] + 
-             m[5]  * m[3] * m[14] + 
-             m[13] * m[2] * m[7] - 
-             m[13] * m[3] * m[6];
-
-    inv[6] = -m[0]  * m[6] * m[15] + 
-              m[0]  * m[7] * m[14] + 
-              m[4]  * m[2] * m[15] - 
-              m[4]  * m[3] * m[14] - 
-              m[12] * m[2] * m[7] + 
-              m[12] * m[3] * m[6];
-
-    inv[10] = m[0]  * m[5] * m[15] - 
-              m[0]  * m[7] * m[13] - 
-              m[4]  * m[1] * m[15] + 
-              m[4]  * m[3] * m[13] + 
-              m[12] * m[1] * m[7] - 
-              m[12] * m[3] * m[5];
-
-    inv[14] = -m[0]  * m[5] * m[14] + 
-               m[0]  * m[6] * m[13] + 
-               m[4]  * m[1] * m[14] - 
-               m[4]  * m[2] * m[13] - 
-               m[12] * m[1] * m[6] + 
-               m[12] * m[2] * m[5];
-
-    inv[3] = -m[1] * m[6] * m[11] + 
-              m[1] * m[7] * m[10] + 
-              m[5] * m[2] * m[11] - 
-              m[5] * m[3] * m[10] - 
-              m[9] * m[2] * m[7] + 
-              m[9] * m[3] * m[6];
-
-    inv[7] = m[0] * m[6] * m[11] - 
-             m[0] * m[7] * m[10] - 
-             m[4] * m[2] * m[11] + 
-             m[4] * m[3] * m[10] + 
-             m[8] * m[2] * m[7] - 
-             m[8] * m[3] * m[6];
-
-    inv[11] = -m[0] * m[5] * m[11] + 
-               m[0] * m[7] * m[9] + 
-               m[4] * m[1] * m[11] - 
-               m[4] * m[3] * m[9] - 
-               m[8] * m[1] * m[7] + 
-               m[8] * m[3] * m[5];
-
-    inv[15] = m[0] * m[5] * m[10] - 
-              m[0] * m[6] * m[9] - 
-              m[4] * m[1] * m[10] + 
-              m[4] * m[2] * m[9] + 
-              m[8] * m[1] * m[6] - 
-              m[8] * m[2] * m[5];
-
-    det = m[0] * inv[0] + m[1] * inv[4] + m[2] * inv[8] + m[3] * inv[12];
-
-    if (det == 0)
-        return;
-
-    det = 1.0 / det;
-
-    for (i = 0; i < 16; i++)
-        invOut[i] = inv[i] * det;
+	vmathM4Inverse( /* ABI for VmathMatrix4 is the same as mat4 */
+			(VmathMatrix4*) invOut,
+			(VmathMatrix4*) m);
 }
 
 void mat4projection(mat4 m, int width, int height, float near, float far) {
@@ -195,42 +74,134 @@ void mat4addi(mat4 a, mat4 b) {
 	}
 }
 
-
-static inline void vec3spherical(vec3 v, vec3 s) {
-	/* s[0] = r, s[1] = fi, s[2] = theta */
+void mat4transpose(mat4 a, mat4 dest) {
 	int i;
-	s[0] = 0;
-	for (i = 0; i < 3; ++i) {
-		s[0] += v[i] * v[i];
+	for(i = 0; i < 4; ++i) {
+		dest[0 + i * 4] = a[0 + i];
+		dest[1 + i * 4] = a[4 + i];
+		dest[2 + i * 4] = a[8 + i];
+		dest[3 + i * 4] = a[12+ i];
 	}
-	s[0] = sqrt(s[0]);
-	s[2] = acos(v[2] / s[0]);
-	s[1] = atan2(v[1], v[0]);
 }
 
-static inline void vec3fromspherical(vec3 v, vec3 s) {
-	float st = sin(s[2]);
-	v[0] = s[0] * st * cos(s[1]);
-	v[1] = s[0] * st * sin(s[1]);
-	v[2] = s[0] * cos(s[2]);
+void mat4setrot(mat4 a, mat3 rot) {
+	int i;
+	for (i = 0; i < 3; ++i) {
+		a[0 + i*4] = rot[0 + i*3];
+		a[1 + i*4] = rot[1 + i*3];
+		a[2 + i*4] = rot[2 + i*3];
+	}
+}
+
+void mat3mul(mat4 a, mat4 b, mat4 dest) {
+	int i, r, c;
+	for (i = 0; i < 9; ++i) {
+		dest[i] = 0;
+	}
+	
+	for (r = 0; r < 3; ++r) {
+		for (c = 0; c < 3; ++c) {
+			for (i = 0; i < 3; ++i)
+				dest[c * 3 + r] += a[3 * i + r] * b[3 * c + i];
+		}
+	}
+}
+void mat3transpose(mat3 a, mat3 dest) {
+	int i;
+	for(i = 0; i < 3; ++i) {
+		dest[0 + i * 3] = a[0 + i];
+		dest[1 + i * 3] = a[3 + i];
+		dest[2 + i * 3] = a[6 + i];
+	}
+}
+void mat3frommat4(mat3 dest, mat4 src) {
+	int i;
+	for (i = 0; i < 3; ++i) {
+		dest[0 + i*3] = src[0 + i*4];
+		dest[1 + i*3] = src[1 + i*4];
+		dest[2 + i*3] = src[2 + i*4];
+	}
+}
+
+#define POW2(x) ((x)*(x))
+
+void mat3axis_angle(mat3 a, vec3 axis, float* angle) {
+	float den = sqrt(
+			POW2(a[5] - a[7]) +
+			POW2(a[6] - a[2]) +
+			POW2(a[1] - a[3]));
+	*angle = acos((a[0] + a[3] + a[6]) / 2.0);
+	axis[0] = (a[5] - a[7])/den;
+	axis[1] = (a[6] - a[2])/den;
+	axis[2] = (a[1] - a[3])/den;
+}
+
+void mat3from_axis_angle(mat3 a, vec3 axis, float angle) {
+	float c = cos(angle);
+	float s = sin(angle);
+	float t = 1.0 - c;
+	float x = axis[0];
+	float y = axis[1];
+	float z = axis[2];
+	a[0] = t*x*x + c;
+	a[1] = t*x*y + z*s;
+	a[2] = t*x*z - y*s;
+
+	a[3] = t*x*y - z*s;
+	a[4] = t*y*y + c;
+	a[5] = t*y*z + x*s;
+
+	a[6] = t*x*z + y*s;
+	a[7] = t*y*z - x*s;
+	a[8] = t*z*z + c;
 }
 
 void mat4slerp(mat4 a, mat4 b, float x, mat4 dest) {
-	/* TODO */
-	int i, j;
-	vec3 s[2];
-	for (i = 0; i < 2; ++i) {
-		vec3spherical(a + i * 4, s[0]);
-		vec3spherical(b + i * 4, s[1]);
-		for(j = 0; j < 3; ++j) {
-			s[0][j] = s[0][j] * (1 - x) + s[1][j] * (x);
-		}
-		vec3fromspherical(dest + i * 4, s[0]);
-	}
-	vec3cross(dest, dest + 4, dest + 8);
+	int i;
+	VmathMatrix3 m;
+	VmathQuat q1, q2, q3;
+
+	vmathM3MakeFromCols(&m,
+			(VmathVector3*)(a + 0),
+			(VmathVector3*)(a + 4),
+			(VmathVector3*)(a + 8));
+	vmathQMakeFromM3(&q1, &m);
+
+	vmathM3MakeFromCols(&m,
+			(VmathVector3*)(b + 0),
+			(VmathVector3*)(b + 4),
+			(VmathVector3*)(b + 8));
+	vmathQMakeFromM3(&q2, &m);
+
+	vmathQSlerp(&q3, x, &q1, &q2);
+	vmathM3MakeFromQ(&m, &q3);
+
+	dest[0 + 0 * 4] = m.col0.x;
+	dest[1 + 0 * 4] = m.col0.y;
+	dest[2 + 0 * 4] = m.col0.z;
+
+	dest[0 + 1 * 4] = m.col1.x;
+	dest[1 + 1 * 4] = m.col1.y;
+	dest[2 + 1 * 4] = m.col1.z;
+
+	dest[0 + 2 * 4] = m.col2.x;
+	dest[1 + 2 * 4] = m.col2.y;
+	dest[2 + 2 * 4] = m.col2.z;
+
+	dest[3] = 0;
+	dest[7] = 0;
+	dest[11] = 0;
+	dest[15] = 1;
 	for (i = 12; i < 15; ++i) {
 		dest[i] = a[i] * (1 - x) + b[i] * x;
 	}
+}
+
+void vec3normalize(vec3 a) {
+	float m = sqrt(a[0]*a[0] + a[1]*a[1] + a[2]*a[2]);
+	a[0] /= m;
+	a[1] /= m;
+	a[2] /= m;
 }
 
 float vec3dot(vec3 a, vec3 b) {
@@ -242,8 +213,8 @@ float vec3dot(vec3 a, vec3 b) {
 	return s;
 }
 
-void vec3cross(vec3 a, vec3 b, vec3 c) {
-	c[0] = a[1]*b[2] - a[2] * b[1];
-	c[1] = a[2]*b[0] - a[0] * b[2];
-	c[2] = a[0]*b[1] - a[1] * b[0];
+void vec3cross(vec3 a, vec3 b, vec3 dest) {
+	dest[0] = a[1]*b[2] - a[2] * b[1];
+	dest[1] = a[2]*b[0] - a[0] * b[2];
+	dest[2] = a[0]*b[1] - a[1] * b[0];
 }
