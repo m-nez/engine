@@ -1,6 +1,18 @@
 #include "shader.h"
 
-extern char* UNIFORMS[];
+//extern char* UNIFORMS[];
+char* UNIFORMS[UN_LEN] = {
+	"ModelMatrix",
+	"ModelViewMatrix",
+	"ModelViewProjectionMatrix",
+	"Bones",
+	"NumBones",
+	"Time",
+	"Texture0",
+	"Texture1",
+	"Texture2",
+	"Texture3"
+};
 
 void shader_init_uniform_index(shader_t* s) {
 	int i;

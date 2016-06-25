@@ -12,7 +12,6 @@ void mat4identity(mat4 m);
 void mat4mul(mat4 a, mat4 b, mat4 dest);
 void mat4cpy(mat4 dest, mat4 src);
 void mat4transpose(mat4 a, mat4 dest);
-
 /* Add inplace */
 void mat4addi(mat4 a, mat4 b);
 void mat4slerp(mat4 a, mat4 b, float x, mat4 dest);
@@ -24,6 +23,7 @@ void mat3frommat4(mat3 dest, mat4 src);
 void mat3axis_angle(mat3 a, vec3 axis, float* angle);
 void mat3from_axis_angle(mat3 a, vec3 axis, float angle);
 
+#define vec3set(v,x,y,z) v[0]=x;v[1]=y;v[2]=z;
 void vec3normalize(vec3 a);
 float vec3dot(vec3 a, vec3 b);
 void vec3cross(vec3 a, vec3 b, vec3 dest);

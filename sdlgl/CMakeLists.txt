@@ -1,16 +1,13 @@
 add_library(sdlgl
 	anim.c
 	assets.c
-	container.c
 	data_types.c
 	debug.c
 	draw.c
 	gobject.c
 	gobject.h
-	gobject.o
 	gobjects.c
 	gobjects.h
-	gobjects.o
 	hash_map.c
 	load.c
 	model.c
