@@ -2,12 +2,14 @@
 #include "draw.h"
 #include "render_state.h"
 #include "anim.h"
+#include "physics/col_object.h"
 
 typedef struct {
+	char* name; /* Unique identifier */
 	render_state_t* render_state;
-	char* name; /* Uniqe identifier */
 	dobject_t* dobject;
-	/* TODO Add physics object */
+	col_object_t* col_object;
+	int col_type;
 	mat4 transform;
 	mat4* parent; /* mat4* so it isn't allocated as a part of the gobject_t */
 	mat4* mat; /* Matrix updated with tranform matrix ex. camera */

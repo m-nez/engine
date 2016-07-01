@@ -4,6 +4,7 @@
 void gobject_init(gobject_t* gobject) {
 	gobject->render_state = NULL;
 	gobject->dobject = NULL;
+	gobject->col_object = NULL;
 	gobject->parent = NULL;
 	gobject->name = NULL;
 	gobject->mat = NULL;
@@ -12,6 +13,12 @@ void gobject_init(gobject_t* gobject) {
 }
 
 void gobject_apply(gobject_t* gobject, float dt) {
+	if (gobject->col_object != NULL) {
+		memcpy( gobject->transform,
+				gobject->col_object->transform,
+				sizeof(gobject->transform));
+		//TODO Take Scale of the object into account
+	}
 	if (gobject->dobject != NULL) {
 		memcpy(	gobject->dobject->model_mat,
 				gobject->transform,
@@ -32,9 +39,19 @@ void gobject_apply(gobject_t* gobject, float dt) {
 
 void gobject_move_xyz(gobject_t* gobject,
 		float x, float y, float z) {
-	gobject->transform[12] += x;
-	gobject->transform[13] += y;
-	gobject->transform[14] += z;
+	vec3 m;
+	vec3set(m, x, y, z);
+	if (gobject->col_object != NULL) {
+		vec3add(gobject->col_object->transform + 12,
+				gobject->col_object->transform + 12,
+				m);
+	} else {
+		vec3add(gobject->transform + 12,
+				gobject->transform + 12,
+				m);
+	
+	}
+	return;
 }
 
 void gobject_attach_mat(gobject_t* gobject, mat4 mat) {

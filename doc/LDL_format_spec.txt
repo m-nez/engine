@@ -1,0 +1,20 @@
+LDL format specifices assets to load.
+
+format:
+number_of_shaders
+shader0.vert shader0.frag	// name of vertex shader and name of fragment shader for a shader program
+...							// Shader will be available in the engine with the extension stripped ex. shader0
+...							// x number_of_shaders
+number_of_models
+name_of_model_in_the_engine filename shader_to_use
+...
+...
+quad quad.vbb post_none
+number_of_textures
+texture0.png
+texture1.png
+...
+...
+number_of_animations
+anim0.amt
+anim1.amt

@@ -74,7 +74,7 @@ void mat4addi(mat4 a, mat4 b) {
 	}
 }
 
-void mat4transpose(mat4 a, mat4 dest) {
+void mat4transpose(mat4 dest, mat4 a) {
 	int i;
 	for(i = 0; i < 4; ++i) {
 		dest[0 + i * 4] = a[0 + i];
@@ -106,7 +106,8 @@ void mat3mul(mat4 a, mat4 b, mat4 dest) {
 		}
 	}
 }
-void mat3transpose(mat3 a, mat3 dest) {
+
+void mat3transpose(mat3 dest, mat3 a) {
 	int i;
 	for(i = 0; i < 3; ++i) {
 		dest[0 + i * 3] = a[0 + i];
@@ -114,6 +115,7 @@ void mat3transpose(mat3 a, mat3 dest) {
 		dest[2 + i * 3] = a[6 + i];
 	}
 }
+
 void mat3frommat4(mat3 dest, mat4 src) {
 	int i;
 	for (i = 0; i < 3; ++i) {
@@ -122,8 +124,6 @@ void mat3frommat4(mat3 dest, mat4 src) {
 		dest[2 + i*3] = src[2 + i*4];
 	}
 }
-
-#define POW2(x) ((x)*(x))
 
 void mat3axis_angle(mat3 a, vec3 axis, float* angle) {
 	float den = sqrt(
@@ -213,7 +213,7 @@ float vec3dot(vec3 a, vec3 b) {
 	return s;
 }
 
-void vec3cross(vec3 a, vec3 b, vec3 dest) {
+void vec3cross(vec3 dest, vec3 a, vec3 b) {
 	dest[0] = a[1]*b[2] - a[2] * b[1];
 	dest[1] = a[2]*b[0] - a[0] * b[2];
 	dest[2] = a[0]*b[1] - a[1] * b[0];

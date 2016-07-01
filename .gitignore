@@ -2,3 +2,5 @@
 *.swp
 assets/
 build/
+demo
+main
