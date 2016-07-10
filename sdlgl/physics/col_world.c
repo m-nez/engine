@@ -3,7 +3,8 @@
 
 int COL_SHAPES_SIZE[NUM_COL_SHAPES] = {
 	sizeof(col_shape_sphere_t),
-	sizeof(col_shape_plane_t)
+	sizeof(col_shape_plane_t),
+	sizeof(col_shape_box_t)
 };
 
 col_world_t* col_world_new() {
@@ -43,11 +44,19 @@ void col_world_apply_velocity(col_world_t* col_world, float dt) {
 		for (j = 0; j < col_world->col_sets[i].len; ++j) {
 			cobj = nf_set_at(col_world->col_sets + i, j);
 			if (cobj->physics_type != PHYSICS_TYPE_STATIC) {
+				/* Linear */
 				vec3 imp;
 				vec3muls(imp, cobj->velocity, dt);
 				vec3add(cobj->transform + 12,
 						cobj->transform + 12,
 						imp); /* Add impulse to the last column (position) */
+				/* Angular */
+				VmathMatrix3 rot_imp, rot, rot_after;
+				vmathM4GetUpper3x3(&rot, (VmathMatrix4*)cobj->transform);
+				vec3muls(imp, cobj->angular_velocity, dt);
+				vmathM3MakeRotationZYX(&rot_imp, (VmathVector3*)imp);
+				vmathM3Mul(&rot_after, &rot_imp, &rot);
+				vmathM4SetUpper3x3((VmathMatrix4*)cobj->transform, &rot_after);
 			}
 		}
 	}
@@ -63,7 +72,10 @@ void col_world_resolve_col(col_world_t* col_world) {
 	int (*functions[])(void*, void*, collision_t*) = {
 		col_detect_sphere_sphere,
 		col_detect_sphere_plane,
-		col_detect_plane_plane
+		col_detect_sphere_box,
+		col_detect_plane_plane,
+		col_detect_plane_box,
+		col_detect_box_box
 	};
 #pragma GCC diagnostic pop
 

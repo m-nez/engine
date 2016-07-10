@@ -25,10 +25,10 @@ void mat3frommat4(mat3 dest, mat4 src);
 void mat3axis_angle(mat3 a, vec3 axis, float* angle);
 void mat3from_axis_angle(mat3 a, vec3 axis, float angle);
 
-void vec3normalize(vec3 a);
-float vec3dot(vec3 a, vec3 b);
-void vec3cross(vec3 dest, vec3 a, vec3 b);
+static inline void vec3normalize(vec3 a);
+static inline float vec3dot(vec3 a, vec3 b);
 
+static inline void vec3cross(vec3 dest, vec3 a, vec3 b);
 static inline void vec3add(vec3 dest, vec3 a, vec3 b);
 static inline void vec3mul(vec3 dest, vec3 a, vec3 b);
 static inline void vec3muls(vec3 dest, vec3 a, float b);

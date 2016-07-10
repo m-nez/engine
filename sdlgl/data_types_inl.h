@@ -1,3 +1,18 @@
+static inline float vec3dot(vec3 a, vec3 b) {
+	float s = 0;
+	int i;
+	for(i = 0; i < 3; ++i) {
+		s += a[i] * b[i];
+	}
+	return s;
+}
+
+static inline void vec3cross(vec3 dest, vec3 a, vec3 b) {
+	dest[0] = a[1]*b[2] - a[2] * b[1];
+	dest[1] = a[2]*b[0] - a[0] * b[2];
+	dest[2] = a[0]*b[1] - a[1] * b[0];
+}
+
 static inline void vec3print(vec3 a) {
 	printf("%g %g %g\n", a[0], a[1], a[2]);
 }
@@ -60,4 +75,31 @@ static inline void vec3reflect(vec3 dest, vec3 a, vec3 normal) {
 	vec3 dn;
 	vec3muls(dn, normal, d);
 	vec3add(dest, a, dn);
+}
+
+static inline void vec3cpy(vec3 dest, vec3 src) {
+	dest[0] = src[0];
+	dest[1] = src[1];
+	dest[2] = src[2];
+}
+
+static inline void vec3normalize(vec3 a) {
+	float m = sqrt(a[0]*a[0] + a[1]*a[1] + a[2]*a[2]);
+	a[0] /= m;
+	a[1] /= m;
+	a[2] /= m;
+}
+
+/* Check if v is null with precision margin of error eps */
+static inline int vec3isnull(vec3 v, float eps) {
+	if (fabs(v[0]) > eps) return 0;
+	if (fabs(v[1]) > eps) return 0;
+	if (fabs(v[2]) > eps) return 0;
+	return 1;
+}
+
+static inline void mat3mulv(vec3 dest, mat3 m, vec3 v) {
+	dest[0] = m[0] * v[0] + m[3] * v[1] + m[6] * v[2];
+	dest[1] = m[1] * v[0] + m[4] * v[1] + m[7] * v[2];
+	dest[2] = m[2] * v[0] + m[5] * v[1] + m[8] * v[2];
 }

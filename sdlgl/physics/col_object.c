@@ -7,4 +7,5 @@ void col_object_init(col_object_t* col_object) {
 	col_object->physics_type = PHYSICS_TYPE_STATIC;
 	col_object->mass = 1.0f;
 	col_object->inertia = 1.0f;
+	col_object->restitution = 0.7f;
 }

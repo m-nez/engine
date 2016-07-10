@@ -11,6 +11,7 @@ typedef struct {
 	vec3 angular_velocity;
 	float mass;
 	float inertia;
+	float restitution;
 	int physics_type; /* Rigid body, Static */
 	void* user_ptr;
 } col_object_t;

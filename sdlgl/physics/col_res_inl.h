@@ -1,10 +1,42 @@
+static inline void point_linear_velocity_from_angular(vec3 dest, vec3 p, vec3 a) {
+	vec3 x = {a[0], 0, 0};
+	vec3 y = {0, a[1], 0};
+	vec3 z = {0, 0, a[2]};
+
+	vec3 tmp;
+
+	vec3set(dest, 0, 0 , 0);
+	vec3cross(tmp, x, p);
+	vec3add(dest, dest, tmp);
+	vec3cross(tmp, y, p);
+	vec3add(dest, dest, tmp);
+	vec3cross(tmp, z, p);
+	vec3add(dest, dest, tmp);
+}
+
 static inline float col_res_impulse(col_object_t* a, col_object_t* b, collision_t* c) {
-	float restitution = 1.0f; //TODO angular
+	float restitution = fmin(a->restitution, b->restitution);
 	vec3 relative_vel;
+	vec3 ang_lin_vel;
+	vec3 point;
+
+	/* Relative velocity of centers of a and b */
 	vec3sub(relative_vel, a->velocity, b->velocity);
-	/* http://rasmush.se/assets/pdf/mos_2d_report.pdf page 7 n * n (WHY)*/
+
+	/* Location of the intersection point relative to the object a */
+	vec3sub(point, c->intersection, a->transform + 12); 
+	point_linear_velocity_from_angular(ang_lin_vel, point, a->angular_velocity);
+
+	vec3add(relative_vel, relative_vel, ang_lin_vel);
+
+	/* Location of the intersection point relative to the object b */
+	vec3sub(point, c->intersection, b->transform + 12); 
+	point_linear_velocity_from_angular(ang_lin_vel, point, b->angular_velocity);
+
+	vec3sub(relative_vel, relative_vel, ang_lin_vel);
+
 	float j = -(1.0f + restitution) * vec3dot(relative_vel, c->normal);
-	j /= 1.0f/a->mass + 1.0f/b->mass;// +
+	j /= 1.0f/a->mass + 1.0f/b->mass; /* + Some angular stuff? */
 	return j;
 }
 
@@ -14,17 +46,22 @@ static inline void col_res_rigid(col_object_t* a, col_object_t* b, collision_t* 
 	vec3 rap, rbp;
 	vec3 can, cbn;
 
+	/* Linear */
 	vec3muls(dv, c->normal, j/a->mass);
 	vec3add(a->velocity, a->velocity, dv);
+	vec3muls(dv, c->normal, j/b->mass);
 	vec3sub(b->velocity, b->velocity, dv);
 
+	/* Angular */
 	vec3sub(rap, c->intersection, a->transform + 12);
 	vec3sub(rbp, c->intersection, b->transform + 12);
 	
-	vec3cross(can, rap, c->normal);
-	vec3cross(cbn, rbp, c->normal);
+	vec3cross(can,  c->normal, rap);
+	vec3cross(cbn,  c->normal, rbp);
 
-	vec3muls(da, can, j/a->inertia);
+	//vec3print(can);
+
+	vec3muls(da, can, -j/a->inertia);
 	vec3add(a->angular_velocity, a->angular_velocity, da);
 
 	vec3muls(da, cbn, j/b->inertia);

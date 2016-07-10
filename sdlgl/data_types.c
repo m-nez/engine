@@ -196,25 +196,3 @@ void mat4slerp(mat4 a, mat4 b, float x, mat4 dest) {
 		dest[i] = a[i] * (1 - x) + b[i] * x;
 	}
 }
-
-void vec3normalize(vec3 a) {
-	float m = sqrt(a[0]*a[0] + a[1]*a[1] + a[2]*a[2]);
-	a[0] /= m;
-	a[1] /= m;
-	a[2] /= m;
-}
-
-float vec3dot(vec3 a, vec3 b) {
-	float s = 0;
-	int i;
-	for(i = 0; i < 3; ++i) {
-		s += a[i] * b[i];
-	}
-	return s;
-}
-
-void vec3cross(vec3 dest, vec3 a, vec3 b) {
-	dest[0] = a[1]*b[2] - a[2] * b[1];
-	dest[1] = a[2]*b[0] - a[0] * b[2];
-	dest[2] = a[0]*b[1] - a[1] * b[0];
-}
