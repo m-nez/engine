@@ -12,14 +12,16 @@ static inline int col_detect_sphere_sphere(
 			s1->col_object.transform + 12,
 			s0->col_object.transform + 12);
 	vec3normalize(collision->normal);
-	return POW2(s0->radius + s1->radius) >=
-
+	float d = sqrt(
 		POW2(	s0->col_object.transform[12] -
 				s1->col_object.transform[12]) +
 		POW2(	s0->col_object.transform[13] -
 				s1->col_object.transform[13]) +
 		POW2(	s0->col_object.transform[14] -
-				s1->col_object.transform[14]);
+				s1->col_object.transform[14]));
+	collision->penetration = s0->radius + s1->radius - d;
+
+	return collision->penetration >= 0;
 }
 
 static inline int col_detect_sphere_plane(
@@ -46,6 +48,7 @@ static inline int col_detect_sphere_plane(
 	vec3norm(collision->normal, nnorm);
 	vec3muls(nnorm, nnorm, s->radius);
 	vec3add(collision->intersection, s->col_object.transform + 12, nnorm);
+	collision->penetration = s->radius - sqrt(d2);
 	return d2 <= s->radius;
 }
 
@@ -101,7 +104,7 @@ static inline int separating_axis_detect(
 		separating_axis_project(axes[i], b_points, b_num_points, &b_min, &b_max);
 
 		ov = overlap(a_min, a_max, b_min, b_max);
-		if (ov <= 0) {
+		if (ov < 0) {
 			return 0;
 		}
 		if (ov < *mtv_mag) {
@@ -287,6 +290,7 @@ static inline int col_detect_box_box(
 		return 0;
 	}
 
+	collision->penetration = mtv_mag;
 	normal = axes[axis_indexes[mtv_index]];
 	if (mtv_index > 5) {
 		/* MTV axis is one created by the cross product of eges */
@@ -328,10 +332,20 @@ static inline int col_detect_box_box(
 
 		/* Set collision intersection as midpoint between p0 and p1 */
 		vec3lerp(collision->intersection, p0, p1, 0.5);
-		vec3cpy(collision->normal, normal);
+		vec3sub(tmp, b1->col_object.transform + 12, b0->col_object.transform + 12);
+		/* collision normal has to point from b0 to b1 */
+		if (vec3dot(normal, tmp) < 0.0) {
+			vec3neg(collision->normal, normal);
+		} else {
+			vec3cpy(collision->normal, normal);
+		}
 
 		return 1;
 	}
+
+
+
+
 	col_shape_box_t* a;
 	col_shape_box_t* b;
 	int sign;
@@ -345,6 +359,14 @@ static inline int col_detect_box_box(
 	vec3 ab; /* Vector form center of a to center of b */
 	vec3 offset;
 	vec3 facep[4]; /* Points on the incident face */
+
+	vec3sub(ab, b1->col_object.transform + 12, b0->col_object.transform + 12);
+	/* collision normal has to point from b0 to b1 */
+	if (vec3dot(normal, ab) < 0.0) {
+		vec3neg(normal, normal);
+	}
+
+
 	if (mtv_index < 3) { /* Face on box 0 is the reference face */
 		a = b0;
 		b = b1;
@@ -405,7 +427,6 @@ static inline int col_detect_box_box(
 	vec3sub(p, ref_p, offset);
 	vec3neg(n, n);
 	clip_polygon(facep, facep, 4, n, p);
-
 	vec3cpy(collision->normal, normal);
 
 	/* Set collision intersection as the average of collision points */
@@ -418,12 +439,53 @@ static inline int col_detect_box_box(
 	return 1;
 }
 
+static inline float distance_from_plane(vec3 point, vec4 plane) {
+	return fabs(vec3dot(point, plane) + plane[3]) / sqrt(vec3dot(plane, plane));
+}
 static inline int col_detect_plane_box(
 		col_shape_plane_t* p,
 		col_shape_box_t* b,
 		collision_t* collision) {
-	//TODO
-	return 0;
+
+	int i;
+	int num_col_points = 0;
+	float mtv_mag;
+	int mtv_index;
+	vec3 points[8];
+	vec3 plane;
+
+	box_get_points(points, b);
+	if (!separating_axis_detect(
+				(vec3*)(p->col_object.transform + 8), 1, /* Plane normal */
+				(vec3*)(p->col_object.transform + 12), 1,
+				points, 8,
+				&mtv_mag, &mtv_index)) {
+		return 0;
+	}
+
+	vec3cpy(collision->normal, p->col_object.transform + 8);
+	vec3set(collision->intersection, 0, 0, 0);
+
+	vec3cpy(plane, p->col_object.transform + 8);
+	plane[3] = -vec3dot(p->col_object.transform + 8, p->col_object.transform + 12);
+	collision->penetration = 0;
+	for(i = 0; i < 8; ++i) {
+		if (!plane_front(points[i],
+					p->col_object.transform + 8,
+					p->col_object.transform + 12)) {
+			vec3add(collision->intersection, collision->intersection, points[i]);
+			collision->penetration += distance_from_plane(points[i], plane);
+			num_col_points++;
+		}
+	}
+	if (num_col_points == 0) {
+		/* This shouldn't happen but may due to numerical error */
+		return 0;
+	}
+	vec3muls(collision->intersection, collision->intersection, 1.0/num_col_points);
+	collision->penetration /= num_col_points;
+
+	return 1;
 }
 
 static inline int col_detect_sphere_box(

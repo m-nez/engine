@@ -55,9 +55,10 @@ int main(int argc, char** argv) {
 
 	gobjects_t* gobjects = gobjects_new(256, render_states);
 
-	gobject_t* d1 = gobjects_add_draw_phys(gobjects, "l1", "box", COL_BOX);
-	gobject_t* d2 = gobjects_add_draw_phys(gobjects, "l2", "box", COL_BOX);
+	gobject_t* d1 = gobjects_add_draw_phys(gobjects, "l1", "basketball", COL_SPHERE);
+	gobject_t* d2 = gobjects_add_draw_phys(gobjects, "l2", "basketball", COL_SPHERE);
 	gobject_t* d3 = gobjects_add_draw_phys(gobjects, "table", "table", COL_PLANE);
+	gobject_t* d4 = gobjects_add_draw_phys(gobjects, "t2", "table", COL_PLANE);
 
 	gobject_t* cam = gobjects_add(gobjects, "camera");
 	gobject_attach_mat(cam, scene.camera);
@@ -66,30 +67,29 @@ int main(int argc, char** argv) {
 	vec3set(grav, 0,0,-9.81);
 
 	d1->col_object->physics_type = PHYSICS_TYPE_RIGID;
-	d2->col_object->physics_type = PHYSICS_TYPE_RIGID;
-	d3->col_object->physics_type = PHYSICS_TYPE_RIGID;
 
-	d3->col_object->mass = 10;
-	d3->col_object->inertia = 10.0 * (16*16 *2 + 0.1*0.1) / 12;
 	vec3set(d1->col_object->velocity, 1, 0, 0);
-	vec3set(d2->col_object->velocity, 0, 0, 0);
+	d1->col_object->restitution = 0.3;
 
 mat4 r, g;
-vmathM4MakeRotationY(r, M_PI/4.0);
-mat4mul(r, d1->col_object->transform, g);
-//mat4cpy(d1->col_object->transform, g);
 
-vmathM4MakeRotationZ(r, M_PI/4.0);
-mat4mul(r, d2->col_object->transform, g);
-//mat4cpy(d2->col_object->transform, g);
+vmathM4MakeRotationY(r, M_PI/2.0);
+mat4mul(r, d4->col_object->transform, g);
+mat4cpy(d4->col_object->transform, g);
 
-	gobject_move_xyz(cam, 6.0, 0.0, 22.0);
-	gobject_move_xyz(d1, 0.0, 0.0, 16.4);
-	gobject_move_xyz(d2, 4.0, 0.0, 16.0);
+vmathM4MakeRotationX(r, M_PI/2.0);
+mat4mul(r, cam->transform, g);
+mat4cpy(cam->transform, g);
+
+	gobject_move_xyz(cam, 2.0, -3.0, -1);
+	gobject_move_xyz(d1, 3.0, 0.0, 10.4);
+	gobject_move_xyz(d2, 4.0, 0.0, 5.0);
 	gobject_move_xyz(d3, 0.0, 0.0, -5.0);
 
+	d1->col_object->friction = 1;
+
 	for (int i = 0; i < 600; ++i) {
-		//col_world_apply_acceleration(gobjects->col_world, grav, 0.016);
+		col_world_apply_acceleration(gobjects->col_world, grav, 0.016);
 		col_world_resolve_col(gobjects->col_world);
 		col_world_apply_velocity(gobjects->col_world, 0.016);
 		gobjects_apply(gobjects, 0.016);

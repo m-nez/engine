@@ -5,6 +5,7 @@
 typedef struct {
 	vec3 intersection;
 	vec3 normal; /* From object 0 to object 1 */
+	float penetration; /* Magnitude of minimal translation vector */
 } collision_t;
 /* Returns 1 if they collide, 0 if they don't */
 static inline int col_detect_sphere_sphere(

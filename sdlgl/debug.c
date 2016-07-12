@@ -26,6 +26,6 @@ void Error(const char* text) {
 			break;
 
 	}
-	printf("%s %s\n", text, type);
+	fprintf(stderr, "%s %s\n", text, type);
 }
 

@@ -83,8 +83,12 @@ static inline void vec3cpy(vec3 dest, vec3 src) {
 	dest[2] = src[2];
 }
 
+static inline float vec3mag(vec3 a) {
+	return sqrt(a[0]*a[0] + a[1]*a[1] + a[2]*a[2]);
+}
+
 static inline void vec3normalize(vec3 a) {
-	float m = sqrt(a[0]*a[0] + a[1]*a[1] + a[2]*a[2]);
+	float m = vec3mag(a);
 	a[0] /= m;
 	a[1] /= m;
 	a[2] /= m;
