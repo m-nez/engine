@@ -26,6 +26,7 @@ static inline void relative_velocity(vec3 relative_vel, col_object_t* a, col_obj
 	/* Location of the intersection point relative to the object a */
 	vec3sub(point, c->intersection, a->transform + 12); 
 	point_linear_velocity_from_angular(ang_lin_vel, point, a->angular_velocity);
+
 	vec3add(relative_vel, relative_vel, ang_lin_vel);
 
 	/* Location of the intersection point relative to the object b */
@@ -39,36 +40,68 @@ static inline float col_res_impulse(vec3 relative_vel, col_object_t* a, col_obje
 	vec3 point;
 	vec3 a1;
 	vec3 a2;
+	vec3 tmp;
+	float r;
 
 	vec3sub(point, c->intersection, a->transform + 12); 
+
 	vec3cross(a1, point, c->normal);
-	vec3cross(a1, a1, point);
-	vec3muls(a1, a1, 1.0/a->inertia);
+	vec3cross(tmp, point, c->normal);
+	r = vec3dot(a1, tmp) / a->inertia;
 
 	vec3sub(point, c->intersection, b->transform + 12); 
-	vec3cross(a2, point, c->normal);
-	vec3cross(a2, a2, point);
-	vec3muls(a2, a2, 1.0/b->inertia);
 
-	vec3add(a1, a1, a2);
+	vec3cross(a2, point, c->normal);
+	vec3cross(tmp, point, c->normal);
+	r += vec3dot(a2, tmp) / b->inertia;
 
 	float j = -(1.0f + restitution) * vec3dot(relative_vel, c->normal);
-	j /= 1.0f/a->mass + 1.0f/b->mass + fabs(vec3dot(a1, c->normal)); /* + Some angular stuff? */
+	j /= 1.0f/a->mass + 1.0f/b->mass + r;
 	return j;
 }
 
-static inline float col_res_friction_impulse(vec3 jnorm, vec3 rel_vel, col_object_t* a, col_object_t* b, collision_t* c) {
+static inline float col_res_friction_impulse(vec3 jnorm, vec3 relative_vel, col_object_t* a, col_object_t* b, collision_t* c) {
+
+
 	float friction = (a->friction + b->friction) / 2.0;
-	float dnrv = vec3dot(c->normal, rel_vel);
 	float tmag;
+	float dnrv = vec3dot(c->normal, relative_vel);
 	vec3 tangent;
 	vec3muls(tangent, c->normal, dnrv);
-	vec3sub(tangent, rel_vel, tangent);
+	vec3sub(tangent, relative_vel, tangent);
 	tmag = vec3mag(tangent);
-	vec3norm(jnorm, tangent);
-	vec3neg(jnorm, jnorm);
+	if (!vec3isnull(tangent, 0.0001)) { /* Can't normalize a null vector */
+		vec3norm(jnorm, tangent);
+		vec3neg(jnorm, jnorm);
+	} else {
+		/* jnorm value doesnt matter because j = 0 */
+		vec3set(jnorm, 1, 0, 0);
+	}
 
-	return fmin(fabs(dnrv * friction), tmag);
+
+
+	vec3 point;
+	vec3 a1;
+	vec3 a2;
+	vec3 tmp;
+	float r;
+
+	vec3sub(point, c->intersection, a->transform + 12); 
+
+	vec3cross(a1, point, jnorm);
+	vec3cross(tmp, point, jnorm);
+	r = vec3dot(a1, tmp) / a->inertia;
+
+	vec3sub(point, c->intersection, b->transform + 12); 
+
+	vec3cross(a2, point, jnorm);
+	vec3cross(tmp, point, jnorm);
+	r += vec3dot(a2, tmp) / b->inertia;
+
+	float j = -(friction) * vec3dot(relative_vel, jnorm);
+	j /= 1.0f/a->mass + 1.0f/b->mass + r;
+	return j;
+
 }
 
 static inline void col_res_apply_impulse(col_object_t* a, col_object_t* b, collision_t* c, float j, vec3 jnorm) {
@@ -79,6 +112,7 @@ static inline void col_res_apply_impulse(col_object_t* a, col_object_t* b, colli
 	/* Linear */
 	vec3muls(dv, jnorm, j/a->mass);
 	vec3add(a->velocity, a->velocity, dv);
+
 	vec3muls(dv, jnorm, j/b->mass);
 	vec3sub(b->velocity, b->velocity, dv);
 
@@ -86,8 +120,8 @@ static inline void col_res_apply_impulse(col_object_t* a, col_object_t* b, colli
 	vec3sub(rap, c->intersection, a->transform + 12);
 	vec3sub(rbp, c->intersection, b->transform + 12);
 	
-	vec3cross(can,  jnorm, rap);
-	vec3cross(cbn,  jnorm, rbp);
+	vec3cross(can, jnorm, rap);
+	vec3cross(cbn, jnorm, rbp);
 
 	vec3muls(da, can, -j/a->inertia);
 	vec3add(a->angular_velocity, a->angular_velocity, da);
@@ -101,18 +135,21 @@ static inline void col_res_rigid(col_object_t* a, col_object_t* b, collision_t* 
 	vec3 rel_vel;
 	float j;
 
+
 	relative_velocity(rel_vel, a, b, c);
 	j = col_res_impulse(rel_vel, a, b, c);
 	col_res_apply_impulse(a, b, c, j, c->normal);
+
+	relative_velocity(rel_vel, a, b, c); /* Recalculate relative velocity after collision response */
 	j = col_res_friction_impulse(jnorm, rel_vel, a, b, c);
 	col_res_apply_impulse(a, b, c, j, jnorm);
-
 	/* Apply minimal translation vector */
 	vec3 mtv;
 	vec3 mtva;
 	float m = a->mass + b->mass;
-	vec3muls(mtv, c->normal, -c->penetration);
+	vec3muls(mtv, c->normal, - c->penetration);
 	vec3muls(mtva, mtv, b->mass/m);
+
 	vec3add(a->transform + 12, a->transform + 12, mtva);
 	vec3muls(mtva, mtv, - a->mass/m);
 	vec3add(b->transform + 12, b->transform + 12, mtva);

@@ -55,8 +55,8 @@ int main(int argc, char** argv) {
 
 	gobjects_t* gobjects = gobjects_new(256, render_states);
 
-	gobject_t* d1 = gobjects_add_draw_phys(gobjects, "l1", "basketball", COL_SPHERE);
-	gobject_t* d2 = gobjects_add_draw_phys(gobjects, "l2", "basketball", COL_SPHERE);
+	gobject_t* d1 = gobjects_add_draw_phys(gobjects, "l1", "box", COL_BOX);
+	gobject_t* d2 = gobjects_add_draw_phys(gobjects, "l2", "box", COL_BOX);
 	gobject_t* d3 = gobjects_add_draw_phys(gobjects, "table", "table", COL_PLANE);
 	gobject_t* d4 = gobjects_add_draw_phys(gobjects, "t2", "table", COL_PLANE);
 
@@ -67,8 +67,12 @@ int main(int argc, char** argv) {
 	vec3set(grav, 0,0,-9.81);
 
 	d1->col_object->physics_type = PHYSICS_TYPE_RIGID;
+	d2->col_object->physics_type = PHYSICS_TYPE_RIGID;
+	vec3set(((col_shape_box_t*)d1->col_object)->dimensions, 2, 2, 2);
+	vec3set(((col_shape_box_t*)d2->col_object)->dimensions, 2, 2, 2);
 
-	vec3set(d1->col_object->velocity, 1, 0, 0);
+	vec3set(d1->col_object->velocity, 4, 0, 0);
+	vec3set(d1->col_object->angular_velocity, 0, 0, 0);
 	d1->col_object->restitution = 0.3;
 
 mat4 r, g;
@@ -81,18 +85,19 @@ vmathM4MakeRotationX(r, M_PI/2.0);
 mat4mul(r, cam->transform, g);
 mat4cpy(cam->transform, g);
 
-	gobject_move_xyz(cam, 2.0, -3.0, -1);
-	gobject_move_xyz(d1, 3.0, 0.0, 10.4);
-	gobject_move_xyz(d2, 4.0, 0.0, 5.0);
+	gobject_move_xyz(cam, 6.0, -10.0, -1);
+	gobject_move_xyz(d1, 3.0, 0.0, 8);
+	gobject_move_xyz(d2, 8.0, 0.0, 5.0);
 	gobject_move_xyz(d3, 0.0, 0.0, -5.0);
 
 	d1->col_object->friction = 1;
 
 	for (int i = 0; i < 600; ++i) {
-		col_world_apply_acceleration(gobjects->col_world, grav, 0.016);
+		float dt = 0.016;
+		col_world_apply_acceleration(gobjects->col_world, grav, dt);
 		col_world_resolve_col(gobjects->col_world);
-		col_world_apply_velocity(gobjects->col_world, 0.016);
-		gobjects_apply(gobjects, 0.016);
+		col_world_apply_velocity(gobjects->col_world, dt);
+		gobjects_apply(gobjects, dt);
 
 		glEnable(GL_DEPTH_TEST);
 		scene_bind_frame_buffer(&scene);
@@ -103,8 +108,8 @@ mat4cpy(cam->transform, g);
 		glDisable(GL_DEPTH_TEST);
 		draw_render_states(render_states_post->data, render_states_post->map->len, &scene);
 		SDL_GL_SwapWindow(window);
-		scene.time += 0.016;
-		usleep(16000);
+		scene.time += dt;
+		usleep(dt * 1000000);
 	}
 
 	return 0;
