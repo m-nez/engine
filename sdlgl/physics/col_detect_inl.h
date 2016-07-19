@@ -488,10 +488,93 @@ static inline int col_detect_plane_box(
 	return 1;
 }
 
+/* Line is defined by its normal and a point lp 
+ * t is the signed distance from point of line to the projected point*/
+static inline void project_point_onto_line(vec3 dest, float* t, vec3 point, vec3 ln, vec3 lp) {
+	vec3 tmp;
+	vec3sub(tmp, point, lp);
+	*t = vec3dot(tmp, ln);
+	vec3muls(tmp, ln, *t);
+	vec3add(dest, lp, tmp);
+}
+
 static inline int col_detect_sphere_box(
-		col_shape_plane_t* p,
+		col_shape_sphere_t* s,
 		col_shape_box_t* b,
 		collision_t* collision) {
-	//TODO
+	/* Face collision */
+	float r = s->radius;
+	float* pos = s->col_object.transform + 12; /* Position of sphere's center */
+	int i;
+	float d, d2;
+	vec3 point; /* Point on the box closest to sphere */
+	vec3 b_to_s;
+	vec3 tmp;
+	int signs[3];
+	int axis;
+	float axis_d;
+	int axis_passed = 0;
+	/*float min_d = 100000000000;
+	int min_d_axis;*/
+
+	vec3sub(b_to_s, s->col_object.transform + 12, b->col_object.transform + 12);
+
+	vec3cpy(point, b->col_object.transform + 12);
+
+	for (i = 0; i < 3; ++i) {
+		signs[i] =  vec3dot(b_to_s, b->col_object.transform + 4 * i) < 0 ? -1 : 1;
+		vec3muls(tmp, b->col_object.transform + 4 * i, b->dimensions[i]/2 * signs[i]);
+		vec3add(point, point, tmp);
+	}
+
+	d = vec3dist(point, pos);
+	if (d <= r) { /* Collision with a vertex */
+		vec3sub(collision->normal, point, pos);
+		vec3normalize(collision->normal);
+		collision->penetration = r - d;
+		vec3cpy(collision->intersection, point);
+		return 1;
+	}
+
+	for (i = 0; i < 3; ++i) {
+		project_point_onto_line(tmp, &d, pos, b->col_object.transform + 4 * i, point);
+		if (d * signs[i] <= 0) {// && fabs(d) <= b->dimensions[i]) { /* Projects onto the edge */
+			axis_passed++;
+			/*if (fabs(d) < min_d) {
+				min_d = fabs(d);
+				min_d_axis = i;
+			}*/
+			if ((d2 = vec3dist(pos, tmp)) <= r) { /* sphere is close enough to the line */
+				vec3sub(collision->normal, tmp, pos);
+				vec3normalize(collision->normal);
+				vec3cpy(collision->intersection, tmp);
+				collision->penetration = r - d2;
+				return 1;
+			}
+		} else {
+			axis = i;
+			axis_d = d;
+		}
+	}
+
+	d = fabs(axis_d);
+	if (axis_passed == 2 && d <= r) { /* Collision with a face */
+		vec3muls(collision->normal, b->col_object.transform + 4 * axis, - signs[axis]);
+		collision->penetration = r - d;
+		vec3muls(tmp, collision->normal, (r + d) / 2);
+		vec3add(collision->intersection, pos, tmp);
+		return 1;
+	}
+   
+	/* Sphere inside
+	if (axis_passed == 3) {
+		vec3muls(collision->normal, b->col_object.transform + 4 * min_d_axis, - signs[min_d_axis]);
+		d = min_d;
+		collision->penetration = r - d;
+		vec3muls(tmp, collision->normal, (r + d) / 2);
+		vec3add(collision->intersection, pos, tmp);
+		return 1;
+	}
+	*/
 	return 0;
 }

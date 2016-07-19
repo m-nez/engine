@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
 	gobjects_t* gobjects = gobjects_new(256, render_states);
 
 	gobject_t* d1 = gobjects_add_draw_phys(gobjects, "l1", "box", COL_BOX);
-	gobject_t* d2 = gobjects_add_draw_phys(gobjects, "l2", "box", COL_BOX);
+	gobject_t* d2 = gobjects_add_draw_phys(gobjects, "l2", "basketball", COL_SPHERE);
 	gobject_t* d3 = gobjects_add_draw_phys(gobjects, "table", "table", COL_PLANE);
 	gobject_t* d4 = gobjects_add_draw_phys(gobjects, "t2", "table", COL_PLANE);
 
@@ -69,11 +69,10 @@ int main(int argc, char** argv) {
 	d1->col_object->physics_type = PHYSICS_TYPE_RIGID;
 	d2->col_object->physics_type = PHYSICS_TYPE_RIGID;
 	vec3set(((col_shape_box_t*)d1->col_object)->dimensions, 2, 2, 2);
-	vec3set(((col_shape_box_t*)d2->col_object)->dimensions, 2, 2, 2);
+	//vec3set(((col_shape_box_t*)d2->col_object)->dimensions, 2, 2, 2);
 
-	vec3set(d1->col_object->velocity, 4, 0, 0);
+	vec3set(d1->col_object->velocity, 0, 0, 0);
 	vec3set(d1->col_object->angular_velocity, 0, 0, 0);
-	d1->col_object->restitution = 0.3;
 
 mat4 r, g;
 
@@ -87,10 +86,8 @@ mat4cpy(cam->transform, g);
 
 	gobject_move_xyz(cam, 6.0, -10.0, -1);
 	gobject_move_xyz(d1, 3.0, 0.0, 8);
-	gobject_move_xyz(d2, 8.0, 0.0, 5.0);
+	gobject_move_xyz(d2, 2.5, 0.0, 14.0);
 	gobject_move_xyz(d3, 0.0, 0.0, -5.0);
-
-	d1->col_object->friction = 1;
 
 	for (int i = 0; i < 600; ++i) {
 		float dt = 0.016;

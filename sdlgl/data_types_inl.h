@@ -94,6 +94,10 @@ static inline void vec3normalize(vec3 a) {
 	a[2] /= m;
 }
 
+static inline float vec3dist(vec3 a, vec3 b) {
+	return sqrt(POW2(a[0] - b[0]) + POW2(a[1] - b[1]) + POW2(a[2] - b[2]));
+}
+
 /* Check if v is null with precision margin of error eps */
 static inline int vec3isnull(vec3 v, float eps) {
 	if (fabs(v[0]) > eps) return 0;

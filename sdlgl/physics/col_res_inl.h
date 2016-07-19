@@ -61,15 +61,11 @@ static inline float col_res_impulse(vec3 relative_vel, col_object_t* a, col_obje
 }
 
 static inline float col_res_friction_impulse(vec3 jnorm, vec3 relative_vel, col_object_t* a, col_object_t* b, collision_t* c) {
-
-
 	float friction = (a->friction + b->friction) / 2.0;
-	float tmag;
 	float dnrv = vec3dot(c->normal, relative_vel);
 	vec3 tangent;
 	vec3muls(tangent, c->normal, dnrv);
 	vec3sub(tangent, relative_vel, tangent);
-	tmag = vec3mag(tangent);
 	if (!vec3isnull(tangent, 0.0001)) { /* Can't normalize a null vector */
 		vec3norm(jnorm, tangent);
 		vec3neg(jnorm, jnorm);
@@ -77,8 +73,6 @@ static inline float col_res_friction_impulse(vec3 jnorm, vec3 relative_vel, col_
 		/* jnorm value doesnt matter because j = 0 */
 		vec3set(jnorm, 1, 0, 0);
 	}
-
-
 
 	vec3 point;
 	vec3 a1;
