@@ -8,7 +8,7 @@ void col_object_init(col_object_t* col_object) {
 	col_object->mass = 1.0f;
 	col_object->inertia = 1.0f;
 	col_object->restitution = 0.7f;
-	col_object->friction = 0.9f;
+	col_object->friction = 0.8f;
 }
 
 float col_object_rotational_energy(col_object_t* col_object) {

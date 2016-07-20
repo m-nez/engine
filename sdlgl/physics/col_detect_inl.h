@@ -514,8 +514,8 @@ static inline int col_detect_sphere_box(
 	int axis;
 	float axis_d;
 	int axis_passed = 0;
-	/*float min_d = 100000000000;
-	int min_d_axis;*/
+	float min_d = 100000000000;
+	int min_d_axis;
 
 	vec3sub(b_to_s, s->col_object.transform + 12, b->col_object.transform + 12);
 
@@ -540,10 +540,10 @@ static inline int col_detect_sphere_box(
 		project_point_onto_line(tmp, &d, pos, b->col_object.transform + 4 * i, point);
 		if (d * signs[i] <= 0) {// && fabs(d) <= b->dimensions[i]) { /* Projects onto the edge */
 			axis_passed++;
-			/*if (fabs(d) < min_d) {
+			if (fabs(d) < min_d) {
 				min_d = fabs(d);
 				min_d_axis = i;
-			}*/
+			}
 			if ((d2 = vec3dist(pos, tmp)) <= r) { /* sphere is close enough to the line */
 				vec3sub(collision->normal, tmp, pos);
 				vec3normalize(collision->normal);
@@ -566,15 +566,15 @@ static inline int col_detect_sphere_box(
 		return 1;
 	}
    
-	/* Sphere inside
+	/* Sphere inside */
 	if (axis_passed == 3) {
 		vec3muls(collision->normal, b->col_object.transform + 4 * min_d_axis, - signs[min_d_axis]);
 		d = min_d;
-		collision->penetration = r - d;
+		collision->penetration = r + d;
 		vec3muls(tmp, collision->normal, (r + d) / 2);
 		vec3add(collision->intersection, pos, tmp);
 		return 1;
 	}
-	*/
+
 	return 0;
 }

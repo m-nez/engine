@@ -54,9 +54,7 @@ void* hash_map_get(hash_map_t* hash_map, const char* key) {
 	int index = hash_map_function(hash_map, key);
 	bucket_t* bucket = hash_map->buckets + index;
 
-	if (bucket->next == NULL) {
-		return bucket->val;
-	} else {
+	if (bucket->key != NULL) {
 		do {
 			if (strcmp(key, bucket->key) == 0) {
 				return bucket->val;

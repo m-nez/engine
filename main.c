@@ -69,10 +69,6 @@ int main(int argc, char** argv) {
 	d1->col_object->physics_type = PHYSICS_TYPE_RIGID;
 	d2->col_object->physics_type = PHYSICS_TYPE_RIGID;
 	vec3set(((col_shape_box_t*)d1->col_object)->dimensions, 2, 2, 2);
-	//vec3set(((col_shape_box_t*)d2->col_object)->dimensions, 2, 2, 2);
-
-	vec3set(d1->col_object->velocity, 0, 0, 0);
-	vec3set(d1->col_object->angular_velocity, 0, 0, 0);
 
 mat4 r, g;
 
@@ -85,11 +81,20 @@ mat4mul(r, cam->transform, g);
 mat4cpy(cam->transform, g);
 
 	gobject_move_xyz(cam, 6.0, -10.0, -1);
-	gobject_move_xyz(d1, 3.0, 0.0, 8);
-	gobject_move_xyz(d2, 2.5, 0.0, 14.0);
-	gobject_move_xyz(d3, 0.0, 0.0, -5.0);
+	gobject_move_xyz(d1, 2.0, 0.0, 3);
+	gobject_move_xyz(d2, 2.5, 0.0, 8.0);
+	gobject_move_xyz(d3, 8.0, 0.0, -5.0);
+	gobject_move_xyz(d4, 0.0, 0.0, 3.0);
 
 	for (int i = 0; i < 600; ++i) {
+		if (i > 60 && i % 10 == 0) {
+			char name[16];
+			sprintf(name, "bb%d", i);
+			d1 = gobjects_add_draw_phys(gobjects, name, "basketball", COL_SPHERE);
+			d1->col_object->physics_type = PHYSICS_TYPE_RIGID;
+			gobject_move_xyz(d1, 2, 0, 6);
+			vec3set(d1->col_object->velocity, 1, (i / 15 % 5) - 2, -1);
+		}
 		float dt = 0.016;
 		col_world_apply_acceleration(gobjects->col_world, grav, dt);
 		col_world_resolve_col(gobjects->col_world);

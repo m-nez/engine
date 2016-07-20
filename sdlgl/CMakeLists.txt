@@ -29,6 +29,8 @@ add_library(sdlgl
 	window.h
 	nf_set.c
 	nf_set.h
+	light.h
+	light.c
 	)
 
 add_subdirectory(physics)
