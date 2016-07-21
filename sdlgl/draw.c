@@ -54,12 +54,28 @@ void scene_bind_frame_buffer(scene_properties_t* scene) {
 	}
 }
 
+void scene_init(scene_properties_t* scene, SDLGL_Settings* settings) {
+	light_init(&scene->point_lights);
+	scene->time = 0;
+	mat4identity(scene->camera);
+	mat4projection(
+			scene->projection,
+			settings->width, settings->height,
+			1.0, 1000.0);
+	scene->frame_buffer = frame_buffer_new(settings->width, settings->height);
+}
+
 static inline void change_render_state(render_state_t rs, scene_properties_t* scene) {
 	int i;
     glBindVertexArray(rs.vao);
     glUseProgram(rs.shader);
 
 	glUniform1f(rs.uniform_index[UN_TIME], scene->time);
+	glUniformMatrix4fv(
+			rs.uniform_index[UN_POINT_LIGHTS],
+			scene->point_lights.len, GL_FALSE,
+			(float*)scene->point_lights.pos);
+	glUniform1i(rs.uniform_index[UN_POINT_LIGHTS_COUNT], scene->point_lights.len);
 
 	for (i = 0; i < rs.num_tex; ++i) {
 		if (rs.textures[i] != 0) {

@@ -106,6 +106,12 @@ static inline int vec3isnull(vec3 v, float eps) {
 	return 1;
 }
 
+static inline void vec4set(vec3 v, float x, float y, float z, float w) {
+	v[0] = x;
+	v[1] = y;
+	v[2] = z;
+	v[3] = w;
+}
 static inline void mat3mulv(vec3 dest, mat3 m, vec3 v) {
 	dest[0] = m[0] * v[0] + m[3] * v[1] + m[6] * v[2];
 	dest[1] = m[1] * v[0] + m[4] * v[1] + m[7] * v[2];

@@ -11,7 +11,9 @@ char* UNIFORMS[UN_LEN] = {
 	"Texture0",
 	"Texture1",
 	"Texture2",
-	"Texture3"
+	"Texture3",
+	"PointLights",
+	"PointLightsCount"
 };
 
 void shader_init_uniform_index(shader_t* s) {

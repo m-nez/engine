@@ -110,7 +110,7 @@ class VBBExporter(bpy.types.Operator):
 
         for v in me.vertices:
             vert.extend(v.co)
-            norm.extend(v.co)
+            norm.extend(v.normal)
             zero_padding = MAX_BONE_WEIGHTS - len(v.groups)
 
             groups = sorted(v.groups,

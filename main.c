@@ -18,29 +18,16 @@ int main(int argc, char** argv) {
 	SDLGL_Init(settings, &window, context);
 
 	assets_t* assets = assets_new();
-
 	//TESTING
 	scene_properties_t scene;
-	mat4identity(scene.camera);
-	mat4projection(
-			scene.projection,
-			settings->width, settings->height,
-			1.0, 1000.0);
-	scene.time = 0;
-	scene.frame_buffer = frame_buffer_new(settings->width, settings->height);
-
+	scene_init(&scene, settings);
+	scene.point_lights.len = 1;
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-
 	assets_load_ldl(assets, "assets/default.ldl");
-
-	/* Render States */
 	render_states_t* render_states = render_states_new();
-
-	
 	render_states_load_RSB(render_states, assets, "assets/default.rsb");
 	
 	GLuint text[8];
-
 	render_states_t* render_states_post = render_states_new();
 	text[0] = scene.frame_buffer->tex_color_buffer;
 	text[1] = scene.frame_buffer->tex_depth_buffer;
@@ -66,36 +53,28 @@ int main(int argc, char** argv) {
 	vec3 grav;
 	vec3set(grav, 0,0,-9.81);
 
-	d1->col_object->physics_type = PHYSICS_TYPE_RIGID;
 	d2->col_object->physics_type = PHYSICS_TYPE_RIGID;
 	vec3set(((col_shape_box_t*)d1->col_object)->dimensions, 2, 2, 2);
 
 mat4 r, g;
 
-vmathM4MakeRotationY(r, M_PI/2.0);
+vmathM4MakeRotationY((VmathMatrix4*)r, M_PI/2.0);
 mat4mul(r, d4->col_object->transform, g);
 mat4cpy(d4->col_object->transform, g);
 
-vmathM4MakeRotationX(r, M_PI/2.0);
+vmathM4MakeRotationX((VmathMatrix4*)r, M_PI/2.0);
 mat4mul(r, cam->transform, g);
 mat4cpy(cam->transform, g);
 
 	gobject_move_xyz(cam, 6.0, -10.0, -1);
-	gobject_move_xyz(d1, 2.0, 0.0, 3);
-	gobject_move_xyz(d2, 2.5, 0.0, 8.0);
+	gobject_move_xyz(d2, 5, 0.0, -4.0);
 	gobject_move_xyz(d3, 8.0, 0.0, -5.0);
 	gobject_move_xyz(d4, 0.0, 0.0, 3.0);
 
-	for (int i = 0; i < 600; ++i) {
-		if (i > 60 && i % 10 == 0) {
-			char name[16];
-			sprintf(name, "bb%d", i);
-			d1 = gobjects_add_draw_phys(gobjects, name, "basketball", COL_SPHERE);
-			d1->col_object->physics_type = PHYSICS_TYPE_RIGID;
-			gobject_move_xyz(d1, 2, 0, 6);
-			vec3set(d1->col_object->velocity, 1, (i / 15 % 5) - 2, -1);
-		}
+	vec3set(d2->col_object->velocity, 0, -4, 0);
+	for (int i = 0; i < 400; ++i) {
 		float dt = 0.016;
+		scene.point_lights.pos[0][12] += 0.1;
 		col_world_apply_acceleration(gobjects->col_world, grav, dt);
 		col_world_resolve_col(gobjects->col_world);
 		col_world_apply_velocity(gobjects->col_world, dt);

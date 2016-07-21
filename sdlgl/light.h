@@ -17,3 +17,6 @@ typedef struct {
 } light_t;
 
 int light_remove_at(light_t* light, int i);
+int light_add(light_t* light);
+void light_init_at(light_t* light, int i);
+void light_init(light_t* light);

@@ -2,9 +2,12 @@
 
 #include "window.h"
 #include "data_types.h"
+#include "light.h"
 #include <GL/glew.h>
 
-/* Uniform indexes */
+/* Uniform indexes 
+ * Make sure to update UNIFORMS in shader.c
+ * */
 #define UN_MODEL_MATRIX 0
 #define UN_MODEL_VIEW_MATRIX 1
 #define UN_MODEL_VIEW_PROJ_MATRIX 2
@@ -15,8 +18,10 @@
 #define UN_TEXTURE1 7
 #define UN_TEXTURE2 8
 #define UN_TEXTURE3 9
+#define UN_POINT_LIGHTS 10
+#define UN_POINT_LIGHTS_COUNT 11
 
-#define UN_LEN 10
+#define UN_LEN 12
 
 typedef struct {
 	GLuint frame_buffer;
@@ -29,13 +34,15 @@ frame_buffer_t* frame_buffer_new(int w, int h);
 typedef struct {
 	mat4 camera;
 	mat4 projection;
-	mat4 _view;
-	mat4 _view_proj;
+	light_t point_lights;
+	mat4 _view; /* This is calculated during drawing */
+	mat4 _view_proj; /* This is calculated during drawing */
 	float time;
 	frame_buffer_t* frame_buffer;
 } scene_properties_t;
 
 void scene_bind_frame_buffer(scene_properties_t* scene);
+void scene_init(scene_properties_t* scene, SDLGL_Settings* settings);
 
 /* Attribute names */
 #define AT_COLOR "color"
