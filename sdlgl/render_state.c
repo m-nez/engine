@@ -25,11 +25,12 @@ dobject_t* render_state_add(render_state_t* rs) {
  * else return 0.
  */
 int render_state_remove_at(render_state_t* rs, int index) {
-	if (index != rs->len - 1) {
-		memcpy(rs->dobjects + index, rs->dobjects + (rs->len - 1), sizeof(dobject_t) );
+	int last = rs->len - 1;
+	if (index == last) { /* Last */
 		rs->len--;
 		return -1;
 	}
+	memcpy(rs->dobjects + index, rs->dobjects + last, sizeof(dobject_t) );
 	rs->len--;
 	return 0;
 }

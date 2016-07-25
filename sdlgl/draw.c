@@ -71,12 +71,18 @@ static inline void change_render_state(render_state_t rs, scene_properties_t* sc
     glUseProgram(rs.shader);
 
 	glUniform1f(rs.uniform_index[UN_TIME], scene->time);
+	glUniform1i(rs.uniform_index[UN_POINT_LIGHTS_COUNT], scene->point_lights.len);
 	glUniformMatrix4fv(
 			rs.uniform_index[UN_POINT_LIGHTS],
 			scene->point_lights.len, GL_FALSE,
 			(float*)scene->point_lights.pos);
-	glUniform1i(rs.uniform_index[UN_POINT_LIGHTS_COUNT], scene->point_lights.len);
-
+	glUniform4fv(
+			rs.uniform_index[UN_POINT_LIGHTS_COLOR],
+			scene->point_lights.len,
+			(float*)scene->point_lights.col);
+	glUniformMatrix4fv(
+			rs.uniform_index[UN_CAMERA_MATRIX],
+			1, GL_FALSE, scene->camera);
 	for (i = 0; i < rs.num_tex; ++i) {
 		if (rs.textures[i] != 0) {
 			glActiveTexture(GL_TEXTURE0 + i);

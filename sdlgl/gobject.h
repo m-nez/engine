@@ -10,6 +10,8 @@ typedef struct {
 	dobject_t* dobject;
 	col_object_t* col_object;
 	int col_type;
+	light_t* light; /* Not null if it's controlling a light */
+	int light_index;
 	mat4 transform;
 	mat4* parent; /* mat4* so it isn't allocated as a part of the gobject_t */
 	mat4* mat; /* Matrix updated with tranform matrix ex. camera */

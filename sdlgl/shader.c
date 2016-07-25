@@ -5,6 +5,7 @@ char* UNIFORMS[UN_LEN] = {
 	"ModelMatrix",
 	"ModelViewMatrix",
 	"ModelViewProjectionMatrix",
+	"CameraMatrix",
 	"Bones",
 	"NumBones",
 	"Time",
@@ -13,7 +14,8 @@ char* UNIFORMS[UN_LEN] = {
 	"Texture2",
 	"Texture3",
 	"PointLights",
-	"PointLightsCount"
+	"PointLightsCount",
+	"PointLightsColor"
 };
 
 void shader_init_uniform_index(shader_t* s) {

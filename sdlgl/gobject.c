@@ -9,6 +9,9 @@ void gobject_init(gobject_t* gobject) {
 	gobject->name = NULL;
 	gobject->mat = NULL;
 	gobject->bone_anim = NULL;
+	gobject->light = NULL;
+	gobject->light_index = 0;
+
 	mat4identity(gobject->transform);
 }
 

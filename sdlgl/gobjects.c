@@ -12,17 +12,20 @@ gobjects_t* gobjects_new(size_t size, render_states_t* render_states) {
 
 gobject_t* gobjects_add(gobjects_t* gobjects, const char* name) {
 	gobject_t* gp = gobjects->data + gobjects->map->len;
+	bucket_t* b;
 	if (hash_map_get(gobjects->map, name) != NULL) {
 		fprintf(stderr, "Error: Could not add gobject: gobject with name \"%s\" already exists.\n", name);
 		return NULL;
 	}
 	gobject_init(gp);
-	hash_map_set(gobjects->map, name, gp);
+	b = hash_map_set(gobjects->map, name, gp);
+	gp->name = b->key;
 	return gp;
 }
 
 void gobjects_remove(gobjects_t* gobjects, const char* name) {
 	gobject_t* gp = hash_map_get(gobjects->map, name);
+	gobject_t* g_to_update;
 	if (gp == NULL) {
 		fprintf(stderr, "Error: Could not remove gobject: No gobject with name \"%s\" found.\n", name);
 		return;
@@ -32,11 +35,11 @@ void gobjects_remove(gobjects_t* gobjects, const char* name) {
 		int dobject_index = d - gp->render_state->dobjects;
 		if (render_state_remove_at(gp->render_state, dobject_index) != -1) {
 			/* Swap has occured, so dobject pointer needs fixing */
-			if (d->gobject_ptr != NULL) { /* d is now the swapped dobject from the back of the array */
+			//if (d->gobject_ptr != NULL) { /* d is now the swapped dobject from the back of the array */
 				/* swapped dobject is referenced by a gobject */
-				gobject_t* g_to_update = (gobject_t*)d->gobject_ptr;
+				g_to_update = (gobject_t*)d->gobject_ptr;
 				g_to_update->dobject = d;
-			}
+			//}
 		}
 
 	}
@@ -45,9 +48,15 @@ void gobjects_remove(gobjects_t* gobjects, const char* name) {
 		int col_object_index = nf_set_get_index(gobjects->col_world->col_sets + gp->col_type, col_object);
 		if (nf_set_remove_at(gobjects->col_world->col_sets + gp->col_type, col_object_index) != -1) {
 			/* Swap has occured, so col_object pointer needs fixing */
-			gobject_t* g_to_update = col_object->user_ptr;
+			g_to_update = col_object->user_ptr;
 			g_to_update->col_object = col_object;
 			
+		}
+	}
+	if (gp->light != NULL) {
+		if (light_remove_at(gp->light, gp->light_index) != -1) { /* Not the last element removed */
+			g_to_update = (gobject_t*)gp->light->user_ptr[gp->light_index];
+			g_to_update->light_index = gp->light_index;
 		}
 	}
 	if (gp - gobjects->data != gobjects->map->len - 1) {
@@ -60,6 +69,10 @@ void gobjects_remove(gobjects_t* gobjects, const char* name) {
 		/* Update col_object's pointer */
 		if (gp->col_object != NULL) {
 			gp->col_object->user_ptr = gp;
+		}
+		/* Update light's pointer */
+		if (gp->light != NULL) {
+			gp->light->user_ptr[gp->light_index] = gp;
 		}
 		/* Update pointer in the hash map */
 		hash_map_set(gobjects->map, gp->name, gp);
@@ -93,6 +106,7 @@ gobject_t* gobjects_add_drawable(gobjects_t* gobjects, const char* name, const c
 		return g;
 	}
 	dobject_t* dobjects_pre = rs->dobjects;
+	g->render_state = rs;
 	g->dobject = render_state_add(rs);
 	g->dobject->gobject_ptr = g;
 	if (rs->dobjects != dobjects_pre) {
@@ -123,6 +137,7 @@ gobject_t* gobjects_add_draw_phys(gobjects_t* gobjects, const char* name, const 
 	g->col_object = nf_set_get_last(col_set);
 	col_shape_init(g->col_object, col_type);
 	g->col_type = col_type;
+	g->col_object->user_ptr = g;
 	if (data_pre != col_set->data) {
 		/* Adding caused a realloc, gobjects' col_object pointers have to be updated */
 		int i;

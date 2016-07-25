@@ -8,20 +8,24 @@
 /* Uniform indexes 
  * Make sure to update UNIFORMS in shader.c
  * */
-#define UN_MODEL_MATRIX 0
-#define UN_MODEL_VIEW_MATRIX 1
-#define UN_MODEL_VIEW_PROJ_MATRIX 2
-#define UN_BONES 3
-#define UN_NUM_BONES 4
-#define UN_TIME 5
-#define UN_TEXTURE0 6
-#define UN_TEXTURE1 7
-#define UN_TEXTURE2 8
-#define UN_TEXTURE3 9
-#define UN_POINT_LIGHTS 10
-#define UN_POINT_LIGHTS_COUNT 11
 
-#define UN_LEN 12
+enum {
+	UN_MODEL_MATRIX = 0,
+    UN_MODEL_VIEW_MATRIX,
+    UN_MODEL_VIEW_PROJ_MATRIX,
+	UN_CAMERA_MATRIX,
+    UN_BONES,
+    UN_NUM_BONES,
+    UN_TIME,
+    UN_TEXTURE0,
+    UN_TEXTURE1,
+    UN_TEXTURE2,
+    UN_TEXTURE3,
+    UN_POINT_LIGHTS,
+    UN_POINT_LIGHTS_COUNT,
+    UN_POINT_LIGHTS_COLOR,
+	UN_LEN,
+} uniform;
 
 typedef struct {
 	GLuint frame_buffer;

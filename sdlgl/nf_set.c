@@ -48,7 +48,7 @@ int nf_set_remove_at(nf_set_t* nf_set, int index) {
 		nf_set->len--;
 		return -1;
 	}
-	memcpy( (char*)nf_set->data + (index) * nf_set->elem_size,
+	memcpy( (char*)nf_set->data + index * nf_set->elem_size,
 			(char*)nf_set->data + (nf_set->len - 1) * nf_set->elem_size,
 			nf_set->elem_size);
 	nf_set->len--;
