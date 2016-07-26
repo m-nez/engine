@@ -10,14 +10,13 @@ typedef struct {
 	vec3 velocity;
 	vec3 angular_velocity;
 	float mass;
-	float inertia;
+	mat3 inertia_tensor;
+	mat3 inertia_tensor_inv;
 	float restitution;
 	float friction;
 	int physics_type; /* Rigid body, Static */
+	float bounding_radius; /* Bounding sphere radius */
 	void* user_ptr;
 } col_object_t;
 
 void col_object_init(col_object_t* col_object);
-
-float col_object_rotational_energy(col_object_t* col_object);
-float col_object_translational_energy(col_object_t* col_object);

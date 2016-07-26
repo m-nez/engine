@@ -34,5 +34,7 @@ void col_shape_box_init(col_shape_box_t* col_shape);
 
 void col_shape_box_calc_inertia(col_shape_box_t* col_shape);
 
+void col_shape_plane_init(col_shape_plane_t* col_shape);
+void col_shape_plane_calc_inertia(col_shape_plane_t* col_shape);
 void col_shape_init(void* col_shape, int col_type);
 

@@ -46,7 +46,7 @@ void mat4identity(mat4 m) {
 	m[15] = 1;
 }
 
-void mat4mul(mat4 a, mat4 b, mat4 dest) {
+void mat4mul(mat4 dest, mat4 a, mat4 b) {
 	int i, r, c;
 	for (i = 0; i < 16; ++i) {
 		dest[i] = 0;
@@ -93,7 +93,7 @@ void mat4setrot(mat4 a, mat3 rot) {
 	}
 }
 
-void mat3mul(mat4 a, mat4 b, mat4 dest) {
+void mat3mul(mat3 dest, mat3 a, mat3 b) {
 	int i, r, c;
 	for (i = 0; i < 9; ++i) {
 		dest[i] = 0;

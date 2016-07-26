@@ -102,8 +102,8 @@ void col_world_resolve_col(col_world_t* col_world) {
 					c0 = nf_set_at(set0, k);
 					for(l = k + 1; l < set1->len; ++l) {
 						c1 = nf_set_at(set1, l);
-
-						if (functions[function_index](c0, c1, &collision) ) {
+						if (col_detect_bound(c0, c1) && 
+								functions[function_index](c0, c1, &collision) ) {
 							col_res(c0, c1, &collision);
 						}
 					}
@@ -113,7 +113,6 @@ void col_world_resolve_col(col_world_t* col_world) {
 					c0 = nf_set_at(set0, k);
 					for(l = 0; l < set1->len; ++l) {
 						c1 = nf_set_at(set1, l);
-
 						if (functions[function_index](c0, c1, &collision) ) {
 							col_res(c0, c1, &collision);
 						}

@@ -26,7 +26,7 @@ dobject_t* render_state_add(render_state_t* rs) {
  */
 int render_state_remove_at(render_state_t* rs, int index) {
 	int last = rs->len - 1;
-	if (index == last) { /* Last */
+	if (index == last) {
 		rs->len--;
 		return -1;
 	}

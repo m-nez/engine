@@ -4,7 +4,7 @@
 #include "col_shape.h"
 #include "col_res.h"
 
-#define NF_SET_DEFAULT_SIZE 256
+#define NF_SET_DEFAULT_SIZE 512
 
 typedef struct {
 	nf_set_t col_sets[NUM_COL_SHAPES];

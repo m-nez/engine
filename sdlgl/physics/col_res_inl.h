@@ -35,8 +35,7 @@ static inline void relative_velocity(vec3 relative_vel, col_object_t* a, col_obj
 	vec3sub(relative_vel, relative_vel, ang_lin_vel);
 }
 
-static inline float col_res_impulse(vec3 relative_vel, col_object_t* a, col_object_t* b, collision_t* c) {
-	float restitution = fmin(a->restitution, b->restitution);
+static inline float col_res_impulse_common(vec3 relative_vel, vec3 jnorm, col_object_t* a, col_object_t* b, collision_t* c) {
 	vec3 point;
 	vec3 a1;
 	vec3 a2;
@@ -45,19 +44,27 @@ static inline float col_res_impulse(vec3 relative_vel, col_object_t* a, col_obje
 
 	vec3sub(point, c->intersection, a->transform + 12); 
 
-	vec3cross(a1, point, c->normal);
-	vec3cross(tmp, point, c->normal);
-	r = vec3dot(a1, tmp) / a->inertia;
+	vec3cross(a1, point, jnorm);
+	vec3cross(tmp, point, jnorm);
+	/* Can be done in place becouse inertia_tensor_inv is a diagonal matrix */
+	mat3mulv(tmp, a->inertia_tensor_inv, tmp);
+	r = vec3dot(a1, tmp);
 
 	vec3sub(point, c->intersection, b->transform + 12); 
 
-	vec3cross(a2, point, c->normal);
-	vec3cross(tmp, point, c->normal);
-	r += vec3dot(a2, tmp) / b->inertia;
+	vec3cross(a2, point, jnorm);
+	vec3cross(tmp, point, jnorm);
+	mat3mulv(tmp, b->inertia_tensor_inv, tmp);
+	r += vec3dot(a2, tmp);
 
-	float j = -(1.0f + restitution) * vec3dot(relative_vel, c->normal);
+	float j = -vec3dot(relative_vel, jnorm);
 	j /= 1.0f/a->mass + 1.0f/b->mass + r;
 	return j;
+}
+
+static inline float col_res_impulse(vec3 relative_vel, col_object_t* a, col_object_t* b, collision_t* c) {
+	float restitution = fmin(a->restitution, b->restitution);
+	return (1.0f + restitution) * col_res_impulse_common(relative_vel, c->normal, a, b, c);
 }
 
 static inline float col_res_friction_impulse(vec3 jnorm, vec3 relative_vel, col_object_t* a, col_object_t* b, collision_t* c) {
@@ -74,28 +81,7 @@ static inline float col_res_friction_impulse(vec3 jnorm, vec3 relative_vel, col_
 		vec3set(jnorm, 1, 0, 0);
 	}
 
-	vec3 point;
-	vec3 a1;
-	vec3 a2;
-	vec3 tmp;
-	float r;
-
-	vec3sub(point, c->intersection, a->transform + 12); 
-
-	vec3cross(a1, point, jnorm);
-	vec3cross(tmp, point, jnorm);
-	r = vec3dot(a1, tmp) / a->inertia;
-
-	vec3sub(point, c->intersection, b->transform + 12); 
-
-	vec3cross(a2, point, jnorm);
-	vec3cross(tmp, point, jnorm);
-	r += vec3dot(a2, tmp) / b->inertia;
-
-	float j = -(friction) * vec3dot(relative_vel, jnorm);
-	j /= 1.0f/a->mass + 1.0f/b->mass + r;
-	return j;
-
+	return friction * col_res_impulse_common(relative_vel, jnorm, a, b, c);
 }
 
 static inline void col_res_apply_impulse(col_object_t* a, col_object_t* b, collision_t* c, float j, vec3 jnorm) {
@@ -117,10 +103,14 @@ static inline void col_res_apply_impulse(col_object_t* a, col_object_t* b, colli
 	vec3cross(can, jnorm, rap);
 	vec3cross(cbn, jnorm, rbp);
 
-	vec3muls(da, can, -j/a->inertia);
+	/* Can be done in place becouse inertia_tensor_inv is a diagonal matrix */
+	mat3mulv(can, a->inertia_tensor_inv, can);
+	mat3mulv(cbn, b->inertia_tensor_inv, cbn);
+
+	vec3muls(da, can, -j);
 	vec3add(a->angular_velocity, a->angular_velocity, da);
 
-	vec3muls(da, cbn, j/b->inertia);
+	vec3muls(da, cbn, j);
 	vec3add(b->angular_velocity, b->angular_velocity, da);
 }
 
@@ -151,25 +141,31 @@ static inline void col_res_rigid(col_object_t* a, col_object_t* b, collision_t* 
 
 static inline void col_res_static(col_object_t* a, col_object_t* b, collision_t* c) {
 	float m = b->mass;
-	float i = b->inertia;
 	const float inf = 10000000000;
 	b->mass = inf;
-	b->inertia = inf;
+	vec3 iinv = { /* Only inverted inerta tensor is used in calculation */
+		b->inertia_tensor_inv[0],
+		b->inertia_tensor_inv[4],
+		b->inertia_tensor_inv[8]
+	};
+	vec3 zero_vec = {0, 0, 0};
+	mat3setdiag(b->inertia_tensor_inv, zero_vec);
 	vec3set(b->velocity, 0, 0, 0);
 	vec3set(b->angular_velocity, 0, 0, 0);
 	col_res_rigid(a, b, c);
 	b->mass = m;
-	b->inertia = i;
+	mat3setdiag(b->inertia_tensor_inv, iinv);
 }
 
 static inline void col_res(col_object_t* a, col_object_t* b, collision_t* c) {
 	if (b->physics_type == PHYSICS_TYPE_STATIC &&
 			a->physics_type == PHYSICS_TYPE_STATIC) {
 		return;
-	} else if (b->physics_type == PHYSICS_TYPE_STATIC) {
+	}
+	if (b->physics_type == PHYSICS_TYPE_STATIC) {
 		col_res_static(a,b,c);
 	} else if (a->physics_type == PHYSICS_TYPE_STATIC){
-		vec3neg(c->normal, c->normal); /* ??? */
+		vec3neg(c->normal, c->normal);
 		col_res_static(b,a,c);
 	} else {
 		col_res_rigid(a,b,c);

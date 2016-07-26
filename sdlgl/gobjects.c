@@ -35,11 +35,11 @@ void gobjects_remove(gobjects_t* gobjects, const char* name) {
 		int dobject_index = d - gp->render_state->dobjects;
 		if (render_state_remove_at(gp->render_state, dobject_index) != -1) {
 			/* Swap has occured, so dobject pointer needs fixing */
-			//if (d->gobject_ptr != NULL) { /* d is now the swapped dobject from the back of the array */
+			if (d->gobject_ptr != NULL) { /* d is now the swapped dobject from the back of the array */
 				/* swapped dobject is referenced by a gobject */
 				g_to_update = (gobject_t*)d->gobject_ptr;
 				g_to_update->dobject = d;
-			//}
+			}
 		}
 
 	}

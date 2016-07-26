@@ -112,8 +112,33 @@ static inline void vec4set(vec3 v, float x, float y, float z, float w) {
 	v[2] = z;
 	v[3] = w;
 }
+
 static inline void mat3mulv(vec3 dest, mat3 m, vec3 v) {
 	dest[0] = m[0] * v[0] + m[3] * v[1] + m[6] * v[2];
 	dest[1] = m[1] * v[0] + m[4] * v[1] + m[7] * v[2];
 	dest[2] = m[2] * v[0] + m[5] * v[1] + m[8] * v[2];
+}
+
+static inline void mat3diag(mat3 dest, float x, float y, float z) {
+	vec3set(dest + 0, x, 0, 0);
+	vec3set(dest + 3, 0, y, 0);
+	vec3set(dest + 6, 0, 0, z);
+}
+
+static inline void mat3invdiag(mat3 dest, mat3 src) {
+	vec3set(dest + 0, 1.0f/src[0], src[1], src[2]);
+	vec3set(dest + 3, src[3], 1.0f/src[4], src[5]);
+	vec3set(dest + 6, src[6], src[7], 1.0f/src[8]);
+}
+
+static inline void mat3setdiag(mat3 dest, vec3 diag) {
+	dest[0] = diag[0];
+	dest[4] = diag[1];
+	dest[8] = diag[2];
+}
+
+static inline void mat3print(mat3 m) {
+	printf("%8g %8g %8g\n", m[0], m[3], m[6]);
+	printf("%8g %8g %8g\n", m[1], m[4], m[7]);
+	printf("%8g %8g %8g\n", m[2], m[5], m[8]);
 }

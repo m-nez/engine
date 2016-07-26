@@ -1,5 +1,15 @@
 #pragma once
 
+static inline int col_detect_bound(
+		col_object_t* a,
+		col_object_t* b) {
+	if (vec3dist(a->transform + 12, b->transform + 12) > 
+		a->bounding_radius + b->bounding_radius) {
+		return 0;
+	}
+	return 1;
+}
+
 static inline int col_detect_sphere_sphere(
 		col_shape_sphere_t* s0,
 		col_shape_sphere_t* s1,
@@ -343,9 +353,6 @@ static inline int col_detect_box_box(
 		return 1;
 	}
 
-
-
-
 	col_shape_box_t* a;
 	col_shape_box_t* b;
 	int sign;
@@ -502,7 +509,6 @@ static inline int col_detect_sphere_box(
 		col_shape_sphere_t* s,
 		col_shape_box_t* b,
 		collision_t* collision) {
-	/* Face collision */
 	float r = s->radius;
 	float* pos = s->col_object.transform + 12; /* Position of sphere's center */
 	int i;
@@ -516,6 +522,7 @@ static inline int col_detect_sphere_box(
 	int axis_passed = 0;
 	float min_d = 100000000000;
 	int min_d_axis;
+	int edge_col = -1;
 
 	vec3sub(b_to_s, s->col_object.transform + 12, b->col_object.transform + 12);
 
@@ -538,7 +545,7 @@ static inline int col_detect_sphere_box(
 
 	for (i = 0; i < 3; ++i) {
 		project_point_onto_line(tmp, &d, pos, b->col_object.transform + 4 * i, point);
-		if (d * signs[i] <= 0) {// && fabs(d) <= b->dimensions[i]) { /* Projects onto the edge */
+		if (d * signs[i] <= 0) { /* Projects onto the edge */
 			axis_passed++;
 			if (fabs(d) < min_d) {
 				min_d = fabs(d);
@@ -549,7 +556,8 @@ static inline int col_detect_sphere_box(
 				vec3normalize(collision->normal);
 				vec3cpy(collision->intersection, tmp);
 				collision->penetration = r - d2;
-				return 1;
+				edge_col = i;
+				/* This can be overwritten if there is a face collision */
 			}
 		} else {
 			axis = i;
@@ -563,6 +571,10 @@ static inline int col_detect_sphere_box(
 		collision->penetration = r - d;
 		vec3muls(tmp, collision->normal, (r + d) / 2);
 		vec3add(collision->intersection, pos, tmp);
+		return 1;
+	}
+
+	if (edge_col != -1) { /* Collision with an edge */
 		return 1;
 	}
    

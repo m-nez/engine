@@ -45,7 +45,7 @@ frame_buffer_t* frame_buffer_new(int w, int h) {
 
 static inline void calc_scene_prop(scene_properties_t* scene) {
 	mat4invert(scene->camera, scene->_view);
-	mat4mul(scene->projection, scene->_view, scene->_view_proj);
+	mat4mul(scene->_view_proj, scene->projection, scene->_view);
 }
 
 void scene_bind_frame_buffer(scene_properties_t* scene) {
@@ -95,7 +95,7 @@ static inline void change_render_state(render_state_t rs, scene_properties_t* sc
 
 static inline void render(render_state_t rs, dobject_t dobject, scene_properties_t* scene) {
 	mat4 mvp_mat;
-	mat4mul(scene->_view_proj, dobject.model_mat, mvp_mat);
+	mat4mul(mvp_mat, scene->_view_proj, dobject.model_mat);
 	glUniformMatrix4fv(
 			rs.uniform_index[UN_MODEL_MATRIX],
 			1, GL_FALSE, dobject.model_mat);
