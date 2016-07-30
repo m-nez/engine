@@ -22,7 +22,6 @@ void gobject_apply(gobject_t* gobject, float dt) {
 		memcpy( gobject->transform,
 				gobject->col_object->transform,
 				sizeof(gobject->transform));
-		//TODO Take Scale of the object into account
 	}
 	/* Apply scale */
 	for(i = 0; i < 3; ++i) {
