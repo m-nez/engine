@@ -15,13 +15,23 @@ void col_shape_sphere_calc_inertia(col_shape_sphere_t* col_shape) {
 	col_object_set_inertia_tensor(&col_shape->col_object, tmp, tmp, tmp);
 }
 
+void col_shape_sphere_calc(col_shape_sphere_t* col_shape) {
+	col_shape_sphere_calc_inertia(col_shape);
+	col_shape->col_object.bounding_radius = col_shape->radius;
+}
+
+float col_shape_box_calc_bounding_radius(col_shape_box_t* col_shape) {
+	return vec3mag(col_shape->dimensions) / 2.0f;
+}
+
+void col_shape_box_calc(col_shape_box_t* col_shape) {
+	col_shape_box_calc_inertia(col_shape);
+	col_shape->col_object.bounding_radius = col_shape_box_calc_bounding_radius(col_shape);
+}
+
 void col_shape_box_init(col_shape_box_t* col_shape) {
 	vec3set(col_shape->dimensions, 1.0, 1.0, 1.0);
 	col_shape_box_calc_inertia(col_shape);
-}
-
-float col_shape_calc_box_bounding_radius(col_shape_box_t* col_shape) {
-	return vec3mag(col_shape->dimensions) / 2.0f;
 }
 
 void col_shape_box_calc_inertia(col_shape_box_t* col_shape) {

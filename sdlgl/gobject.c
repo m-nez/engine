@@ -11,16 +11,24 @@ void gobject_init(gobject_t* gobject) {
 	gobject->bone_anim = NULL;
 	gobject->light = NULL;
 	gobject->light_index = 0;
-
+	
 	mat4identity(gobject->transform);
+	vec3set(gobject->scale, 1, 1, 1);
 }
 
 void gobject_apply(gobject_t* gobject, float dt) {
+	int i;
 	if (gobject->col_object != NULL) {
 		memcpy( gobject->transform,
 				gobject->col_object->transform,
 				sizeof(gobject->transform));
 		//TODO Take Scale of the object into account
+	}
+	/* Apply scale */
+	for(i = 0; i < 3; ++i) {
+		vec3muls(gobject->transform + 4 * i,
+				gobject->transform + 4 * i,
+				gobject->scale[i]);
 	}
 	if (gobject->dobject != NULL) {
 		memcpy(	gobject->dobject->model_mat,

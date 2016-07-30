@@ -13,6 +13,7 @@ typedef struct {
 	light_t* light; /* Not null if it's controlling a light */
 	int light_index;
 	mat4 transform;
+	vec3 scale;
 	mat4* parent; /* mat4* so it isn't allocated as a part of the gobject_t */
 	mat4* mat; /* Matrix updated with tranform matrix ex. camera */
 	anim_t* bone_anim;

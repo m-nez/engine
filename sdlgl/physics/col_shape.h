@@ -27,12 +27,14 @@ typedef struct {
 } col_shape_box_t;
 
 void col_shape_sphere_init(col_shape_sphere_t* col_shape);
-
 void col_shape_sphere_calc_inertia(col_shape_sphere_t* col_shape);
+void col_shape_sphere_calc(col_shape_sphere_t* col_shape);
 
 void col_shape_box_init(col_shape_box_t* col_shape);
 
+float col_shape_box_calc_bounding_radius(col_shape_box_t* col_shape);
 void col_shape_box_calc_inertia(col_shape_box_t* col_shape);
+void col_shape_box_calc(col_shape_box_t* col_shape);
 
 void col_shape_plane_init(col_shape_plane_t* col_shape);
 void col_shape_plane_calc_inertia(col_shape_plane_t* col_shape);

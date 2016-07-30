@@ -63,14 +63,10 @@ int main(int argc, char** argv) {
 
 	d1->col_object->physics_type = PHYSICS_TYPE_RIGID;
 	d1->col_object->restitution = 0.2;
-	vec3set(((col_shape_box_t*)d1->col_object)->dimensions, 2, 2, 2);
-	d1->col_object->bounding_radius = 1.773;
-	d1->col_object->mass = 1;
-	col_shape_box_calc_inertia((col_shape_box_t*)d1->col_object);
+	vec3set(((col_shape_box_t*)d1->col_object)->dimensions, 2, 2, 8);
+	col_shape_box_calc((col_shape_box_t*)d1->col_object);
 	d2->col_object->physics_type = PHYSICS_TYPE_RIGID;
-	d2->col_object->bounding_radius = 1.;
-	d2->col_object->mass = 1;
-	col_shape_sphere_calc_inertia((col_shape_sphere_t*)d2->col_object);
+	col_shape_sphere_calc((col_shape_sphere_t*)d2->col_object);
 
 mat4 r, g;
 
@@ -102,6 +98,7 @@ mat4cpy(d5->col_object->transform, g);
 	V = 9;
 	vec3set(scene.point_lights.col[1], V,V,V);
 	vec3set(scene.point_lights.pos[1] + 12, 6, -10, -1);
+
 	for (int i = 0; i < 400; ++i) {
 		float dt = 0.016;
 		scene.point_lights.pos[0][12] = 4 + 2*cosf(scene.time);
